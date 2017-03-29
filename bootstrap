@@ -1,0 +1,4 @@
+#!/bin/sh -eux
+
+rm -rf --one-file-system bootstrap.d
+cdebootstrap --include=dbus,usrmerge --exclude=gnupg1,cron,rsyslog,logrotate sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1

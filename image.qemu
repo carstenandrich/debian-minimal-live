@@ -1,0 +1,16 @@
+#!/bin/sh -eux
+
+rm -f image.squashfs
+mksquashfs build.d image.squashfs -noD -noF -noI -noX -e boot -e initrd.img -e vmlinuz
+
+dd if=/dev/null of=image.qemu.config.fat32 bs=512 count=0 seek=65472
+mkfs.vfat image.qemu.config.fat32
+mkdir -p image.qemu.config.mnt
+mount image.qemu.config.fat32 image.qemu.config.mnt
+cp -r image.config.default.d/ image.qemu.config.mnt/config/
+umount image.qemu.config.mnt
+rmdir image.qemu.config.mnt
+
+qemu-system-x86_64 -enable-kvm -machine q35 -m 1024 -drive file=image.squashfs,index=0,media=disk,format=raw -drive file=image.qemu.config.fat32,index=1,media=disk,format=raw -nographic -kernel build.d/boot/vmlinuz-* -initrd build.d/boot/initrd.img-* -append "root=/dev/sda ro console=ttyS0 overlaysize=256m configroot=/dev/sdb net.ifnames=0" # add break=init to debug initramfs (see initramfs-tools (5))
+
+rm -f image.qemu.config.fat32 image.squashfs

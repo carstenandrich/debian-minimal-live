@@ -1,0 +1,46 @@
+#!/bin/sh
+
+PREREQ=""
+prereqs()
+{
+    echo "${PREREQ}"
+}
+
+case "$1" in
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /scripts/functions
+
+overlaysize="256m"
+
+for arg in $(cat /proc/cmdline) ; do
+    case $arg in
+    overlaysize=*)
+        overlaysize=${arg#overlaysize=}
+        break
+        ;;
+    esac
+done
+
+mkdir -p /mnt/overlay \
+    || panic "ERROR: overlay: failed to create tmpfs mount point"
+mount -t tmpfs -o size=$overlaysize tmpfs /mnt/overlay \
+    || panic "ERROR: overlay: failed to mount tmpfs"
+mkdir /mnt/overlay/lower && mkdir /mnt/overlay/upper && mkdir /mnt/overlay/work \
+    || panic "ERROR: overlay: failed to create overlay mount points"
+
+mount --move ${rootmnt} /mnt/overlay/lower \
+    || panic "ERROR: overlay: failed to move ${rootmnt}"
+
+mount -t overlay overlay -o lowerdir=/mnt/overlay/lower,upperdir=/mnt/overlay/upper,workdir=/mnt/overlay/work ${rootmnt} \
+    || panic "ERROR: overlay: failed to mount overlay"
+
+mkdir -p ${rootmnt}/mnt/overlay \
+    || panic "ERROR: overlay: failed to create tmpfs mount point inside overlay"
+
+mount --move /mnt/overlay ${rootmnt}/mnt/overlay \
+    || panic "ERROR: overlay: failed to move tmpfs into overlay"

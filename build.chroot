@@ -1,0 +1,40 @@
+#!/bin/sh -eux
+
+# clear environment variables (to prevent locale issues)
+for var in $(env) ; do
+	varname=${var%%=*}
+
+	case "$varname" in
+		PATH|PWD|SHELL)
+			;;
+		*)
+			unset "$varname"
+			;;
+	esac
+done
+
+# see debconf(7)
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update
+apt-get --assume-yes install locales
+update-locale LANG=C.UTF-8
+apt-get --assume-yes --no-install-recommends install \
+	linux-image-amd64 firmware-linux-free firmware-misc-nonfree firmware-iwlwifi firmware-realtek \
+	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \
+	file htop less liblz4-tool lshw screen man-db manpages \
+	\
+	bind9-host ca-certificates ethtool iputils-ping iputils-arping iputils-tracepath \
+	netcat-openbsd openssh-server rsync socat tcpdump netsniff-ng \
+	\
+	mdadm f2fs-tools ntfs-3g xfsprogs btrfs-progs \
+	build-essential linux-perf python3 strace \
+	libpopt0 libuhd003 \
+	\
+	xorg xserver-xorg-video-intel openbox tint2 gnuradio dosbox
+
+passwd -d root
+
+systemctl enable systemd-networkd.service
+systemctl enable systemd-resolved.service
+systemctl enable systemd-timesyncd.service

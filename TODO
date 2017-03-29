@@ -1,0 +1,2 @@
+* move features into build-time selectable modules (e.g. debian packages)
+* configure openbox and tint2

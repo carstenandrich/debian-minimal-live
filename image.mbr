@@ -1,0 +1,48 @@
+#!/bin/sh -eux
+
+rm -f image.squashfs
+mksquashfs build.d image.squashfs -e boot -e initrd.img -e vmlinuz
+
+SQUASHSIZE=$(stat -c %s image.squashfs)
+SQUASHEND=$(expr 131072 + $SQUASHSIZE / 512)
+
+rm -f image.mbr.bin
+dd if=/dev/null of=image.mbr.bin bs=512 seek=$SQUASHEND
+parted image.mbr.bin mklabel msdos
+parted -a min image.mbr.bin mkpart primary 64s 131071s
+parted -a min image.mbr.bin mkpart primary 131072s $(expr $SQUASHEND - 1)s
+parted image.mbr.bin set 1 boot on
+parted image.mbr.bin set 1 lba on
+parted image.mbr.bin set 2 hidden on
+parted image.mbr.bin set 2 lba on
+dd if=/usr/lib/syslinux/mbr/mbr.bin of=image.mbr.bin conv=notrunc
+
+PTUUID=$(blkid -s PTUUID -o value image.mbr.bin)
+DEV=$(losetup --find --show --partscan image.mbr.bin)
+
+dd if=image.squashfs of=${DEV}p2 bs=4K
+rm image.squashfs
+
+mkfs.vfat ${DEV}p1
+mkdir -p image.mbr.boot.mnt
+mount ${DEV}p1 image.mbr.boot.mnt
+mkdir -p image.mbr.boot.mnt/boot/syslinux
+umount image.mbr.boot.mnt
+syslinux --install ${DEV}p1 --directory boot/syslinux
+mount ${DEV}p1 image.mbr.boot.mnt
+
+cp --no-target-directory build.d/boot/initrd.img* image.mbr.boot.mnt/boot/initrd.img
+cp --no-target-directory build.d/boot/vmlinuz* image.mbr.boot.mnt/boot/vmlinuz
+cp -r image.config.default.d/ image.mbr.boot.mnt/config/
+
+echo "DEFAULT linux" > image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
+echo "LABEL linux" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
+echo "LINUX /boot/vmlinuz" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
+echo "INITRD /boot/initrd.img" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
+echo "APPEND root=/dev/disk/by-partuuid/$PTUUID-02 ro configroot=/dev/disk/by-partuuid/$PTUUID-01 overlaysize=256m net.ifnames=0" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
+
+umount image.mbr.boot.mnt
+losetup -d ${DEV}
+rmdir image.mbr.boot.mnt
+
+#qemu-system-x86_64 -enable-kvm -machine q35 -m 1024 -drive file=image.mbr.bin,index=0,media=disk,format=raw
