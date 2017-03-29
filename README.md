@@ -27,12 +27,12 @@ Prerequisites (debian package names)
 Build instructions
 ------------------
 
-1.) ./bootstrap
+### 1.) # ./bootstrap
 
 Runs cdebootstrap to bootstrap a Debian system. To speed up a repetitive build
 process, the result is cached in bootstrap.d.
 
-2.) ./build
+### 2.) # ./build
 
 Copies and customizes the bootstrapped system (does not touch bootstrap.d) in
 directory build.d. Software installation is conducted via chroot (see file
@@ -41,7 +41,7 @@ packages. If the build fails the bind must be unmounted manually.
 The contents of build.include.pre.d will be copied into build.d before
 chrooting, the contents of build.include.post.d afterwards.
 
-3a) ./image.mbr
+### 3a.) # ./image.mbr
 
 Builds an MBR partitioned disk image (image.mbr.bin) which can be dumped on any
 bootable storage medium, using a partition for the compressed SquashFS image
@@ -51,7 +51,7 @@ image.config.default.d and copied into the root file system during early boot
 (initramfs), allowing to configure the boot process without re-building the
 SquashFS.
 
-3b.) ./image.qemu
+### 3b.) # ./image.qemu
 
 Builds only the SqushFS image (image.squashfs) and runs qemu on it.
 Mainly designed for quick tests of OS and/or initramfs.
