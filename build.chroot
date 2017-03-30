@@ -38,3 +38,4 @@ passwd -d root
 systemctl enable systemd-networkd.service
 systemctl enable systemd-resolved.service
 systemctl enable systemd-timesyncd.service
+ln -fs /run/systemd/resolve/resolv.conf /etc/resolv.conf

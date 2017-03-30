@@ -10,7 +10,7 @@ cp -a --reflink=auto bootstrap.d build.d
 
 echo "deb http://deb.debian.org/debian sid main contrib non-free" > build.d/etc/apt/sources.list
 
-cp -r build.include.pre.d/* build.d/
+cp -r build.include.d/* build.d/
 
 #mount --bind /dev build.d/dev
 #mount --bind /proc build.d/proc
@@ -37,6 +37,3 @@ umount build.d/var/cache/apt/archives
 rm -rf --one-file-system build.d/var/cache/apt/*
 rm -rf --one-file-system build.d/var/lib/apt/lists/*
 rm -rf --one-file-system build.d/var/log/*
-rm -rf --one-file-system build.d/etc/resolv.conf
-
-cp -r build.include.post.d/* build.d/
