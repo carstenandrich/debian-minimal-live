@@ -1,2 +1,0 @@
-SUBSYSTEM=="block", ENV{ID_FS_USAGE}=="filesystem", ENV{ID_FS_TYPE}!="", ACTION=="add",    RUN="/bin/systemctl --no-block start mount@$kernel.service"
-SUBSYSTEM=="block", ENV{ID_FS_USAGE}=="filesystem", ENV{ID_FS_TYPE}!="", ACTION=="remove", RUN="/bin/systemctl --no-block stop  mount@$kernel.service"

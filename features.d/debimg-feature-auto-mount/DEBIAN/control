@@ -1,4 +1,4 @@
-Package: debimg-feature-automount
+Package: debimg-feature-auto-mount
 Version: 1
 Architecture: all
 Maintainer: Carsten Andrich
