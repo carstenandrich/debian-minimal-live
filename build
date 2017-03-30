@@ -17,13 +17,14 @@ cp -r build.include.pre.d/* build.d/
 #mount --bind /sys build.d/sys
 mount --bind /var/cache/apt/archives build.d/var/cache/apt/archives
 
-dpkg --root=build.d --install cdebootstrap-helper-rc.d.deb
+dpkg --root=build.d --install features.d/debimg-helper-policy-rc.d.deb
+dpkg --root=build.d --install features.d/debimg-feature-*.deb
 
 cp build.chroot build.d/
 chroot build.d /build.chroot
 rm build.d/build.chroot
 
-dpkg --root=build.d --purge cdebootstrap-helper-rc.d
+dpkg --root=build.d --purge debimg-helper-policy-rc.d
 
 sed -i 's/^KEYMAP=n/KEYMAP=y/' build.d/etc/initramfs-tools/initramfs.conf
 

@@ -1,0 +1,5 @@
+Package: debimg-feature-overlay
+Version: 1
+Architecture: all
+Maintainer: Carsten Andrich
+Description: mount root filesystem read-only using overlayfs and tmpfs

@@ -19,7 +19,7 @@ Prerequisites (debian package names)
 ------------------------------------
 
 	apt-get install \
-		apt cdebootstrap coreutils dpkg mount util-linux \
+		apt cdebootstrap coreutils dpkg fakeroot mount util-linux \
 		dosfstools parted squashfs-tools syslinux \
 		qemu-system-x86
 

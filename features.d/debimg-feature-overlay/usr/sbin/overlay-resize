@@ -1,0 +1,3 @@
+#!/bin/sh -eux
+
+mount -o remount,size=$1 /mnt/overlay

@@ -1,0 +1,5 @@
+Package: debimg-helper-policy-rc.d
+Version: 1
+Architecture: all
+Maintainer: Carsten Andrich
+Description: chroot helper denying rc.d operations and start-stop-daemon invocation

@@ -1,0 +1,6 @@
+Package: debimg-feature-automount
+Version: 1
+Architecture: all
+Maintainer: Carsten Andrich
+Depends: mount, systemd, udev
+Description: auto-mount block devices containing filesytems

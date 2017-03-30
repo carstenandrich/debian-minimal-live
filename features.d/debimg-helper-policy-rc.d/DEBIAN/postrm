@@ -1,0 +1,27 @@
+#!/bin/sh -eu
+
+case "$1" in
+	remove|purge|upgrade|disappear)
+		if [ -L /sbin/start-stop-daemon ] ; then
+			rm /sbin/start-stop-daemon
+		fi
+
+		if [ -x /sbin/start-stop-daemon.REAL ] ; then
+			mv /sbin/start-stop-daemon.REAL /sbin/start-stop-daemon
+		fi
+
+		if [ -x /usr/sbin/start-stop-daemon.REAL ] ; then
+			mv /usr/sbin/start-stop-daemon.REAL /usr/sbin/start-stop-daemon
+		fi
+
+		;;
+
+	abort-install|abort-upgrade|failed-upgrade)
+		;;
+
+	*)
+		echo "preinst called with invalid argument '$1'" >&2
+		exit 1
+esac
+
+exit 0
