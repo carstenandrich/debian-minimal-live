@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -eu
 
 PREREQ=""
 prereqs()
@@ -6,7 +6,7 @@ prereqs()
     echo "${PREREQ}"
 }
 
-case "$1" in
+case "${1:-}" in
 prereqs)
     prereqs
     exit 0
@@ -16,31 +16,86 @@ esac
 . /scripts/functions
 
 overlaysize="256m"
+overlaycopyroot=0
 
 for arg in $(cat /proc/cmdline) ; do
     case $arg in
     overlaysize=*)
         overlaysize=${arg#overlaysize=}
-        break
+        ;;
+    overlaycopyroot=1)
+        overlaycopyroot=1
+        ;;
+    overlaycopyroot=2)
+        overlaycopyroot=2
         ;;
     esac
 done
 
 mkdir -p /mnt/overlay \
-    || panic "ERROR: overlay: failed to create tmpfs mount point"
-mount -t tmpfs -o size=$overlaysize tmpfs /mnt/overlay \
+    || panic "ERROR: overlay: failed to create overlay tmpfs mount point"
+mount -t tmpfs -o size=$overlaysize,mode=0700 tmpfs /mnt/overlay \
     || panic "ERROR: overlay: failed to mount tmpfs"
 mkdir /mnt/overlay/lower && mkdir /mnt/overlay/upper && mkdir /mnt/overlay/work \
     || panic "ERROR: overlay: failed to create overlay mount points"
 
-mount --move ${rootmnt} /mnt/overlay/lower \
-    || panic "ERROR: overlay: failed to move ${rootmnt}"
+if [ $overlaycopyroot -eq 0 ] ; then
+    # move existing root mount to lowerdir
+    mount -o remount,ro ${rootmnt} \
+        || panic "ERROR: overlay: failed to remount ${rootmnt} read-only"
+    mount --move ${rootmnt} /mnt/overlay/lower \
+        || panic "ERROR: overlay: failed to move ${rootmnt}"
+fi
+
+if [ $overlaycopyroot -eq 1 -o $overlaycopyroot -eq 2 ] ; then
+    # mount lowerdir tmpfs
+    mkdir /mnt/overlay/lower.tmpfs \
+        || panic "ERROR: overlay: failed to create lowerdir tmpfs mountpoint"
+    mount -t tmpfs -o mode=0700 tmpfs /mnt/overlay/lower.tmpfs \
+        || panic "ERROR: overlay: failed to mount lowerdir tmpfs"
+fi
+
+if [ $overlaycopyroot -eq 1 ] ; then
+    # unmount and copy root block device to lowerdir tmpfs and loop mount
+    # copy to actual lowerdir
+    umount ${rootmnt} \
+        || panic "ERROR: overlay: failed to unmount ${rootmnt}"
+    log_begin_msg "overlay: copying root block device to memory ... "
+    cp ${ROOT} /mnt/overlay/lower.tmpfs/root \
+        || panic "ERROR: overlay: failed to copy ${ROOT} block device"
+    log_end_msg
+    mount -o loop,ro /mnt/overlay/lower.tmpfs/root /mnt/overlay/lower \
+        || panic "ERROR: overlay: failed to loop mount root block device copy from lowerdir tmpfs"
+fi
+
+if [ $overlaycopyroot -eq 2 ] ; then
+    # copy files from root mount to separate lowerdir tmpfs
+    log_begin_msg "overlay: copying root filesystem to memory ... "
+    cp -a ${rootmnt}/. /mnt/overlay/lower.tmpfs/ \
+        || panic "ERROR: overlay: failed to copy ${rootmnt} to lowerdir tmpfs"
+    log_end_msg
+    umount ${rootmnt} \
+        || panic "ERROR: overlay: failed to unmount ${rootmnt}"
+    rmdir /mnt/overlay/lower && ln -s lower.tmpfs /mnt/overlay/lower \
+        || panic "ERROR: overlay: failed to link lowerdir tmpfs"
+fi
+
+if [ $overlaycopyroot -eq 1 -o $overlaycopyroot -eq 2 ] ; then
+    # remount lowerdir tmpfs read-only
+    mount -o remount,ro /mnt/overlay/lower.tmpfs \
+        || panic "ERROR: overlay: failed to remount lowerdir tmpfs read-only"
+
+    # try to shrink lowerdir tmpfs
+    blocks_total=$(stat -c %b -f /mnt/overlay/lower.tmpfs)
+    blocks_free=$(stat -c %f -f /mnt/overlay/lower.tmpfs)
+    mount -o remount,nr_blocks=$(($blocks_total - $blocks_free)) /mnt/overlay/lower.tmpfs
+fi
 
 mount -t overlay overlay -o lowerdir=/mnt/overlay/lower,upperdir=/mnt/overlay/upper,workdir=/mnt/overlay/work ${rootmnt} \
     || panic "ERROR: overlay: failed to mount overlay"
 
 mkdir -p ${rootmnt}/mnt/overlay \
-    || panic "ERROR: overlay: failed to create tmpfs mount point inside overlay"
+    || panic "ERROR: overlay: failed to create overlay tmpfs mount point inside overlay"
 
 mount --move /mnt/overlay ${rootmnt}/mnt/overlay \
-    || panic "ERROR: overlay: failed to move tmpfs into overlay"
+    || panic "ERROR: overlay: failed to move overlay tmpfs into overlay"

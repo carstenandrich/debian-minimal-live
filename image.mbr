@@ -39,7 +39,7 @@ echo "DEFAULT linux" > image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
 echo "LABEL linux" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
 echo "LINUX /boot/vmlinuz" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
 echo "INITRD /boot/initrd.img" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
-echo "APPEND root=/dev/disk/by-partuuid/$PTUUID-02 ro configroot=/dev/disk/by-partuuid/$PTUUID-01 overlaysize=256m net.ifnames=0" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
+echo "APPEND root=/dev/disk/by-partuuid/$PTUUID-02 ro configroot=/dev/disk/by-partuuid/$PTUUID-01 overlaysize=256m overlaycopyroot=0 net.ifnames=0" >> image.mbr.boot.mnt/boot/syslinux/syslinux.cfg
 
 umount image.mbr.boot.mnt
 losetup -d ${DEV}
