@@ -1,39 +1,53 @@
 #!/bin/sh -eux
 
-# if build failed, directory may still be mounted
-if mountpoint -q build.d/var/cache/apt/archives ; then
-	umount build.d/var/cache/apt/archives
-fi
+unmount()
+{
+	# unmount bind mounts created by build process
+	for mount in "build.d/var/cache/apt/archives" "build.d/dev" "build.d/proc" "build.d/sys" ; do
+		if mountpoint -q "$mount" ; then
+			umount "$mount"
+		fi
+	done
+}
 
+# call and trap register unmount()
+unmount
+trap "unmount" EXIT INT
+
+# create clean build.d from bootstrap.d
 rm -rf --one-file-system build.d
 cp -a --reflink=auto bootstrap.d build.d
 
+# add apt mirror
 echo "deb http://deb.debian.org/debian sid main contrib non-free" > build.d/etc/apt/sources.list
 
+# copy include directory into build.d
 cp -r build.include.d/* build.d/
 
+# bind mount current system into build.d
 #mount --bind /dev build.d/dev
 #mount --bind /proc build.d/proc
 #mount --bind /sys build.d/sys
 mount --bind /var/cache/apt/archives build.d/var/cache/apt/archives
 
+# inhibit rc.d operations and start-stop-daemon
 dpkg --root=build.d --install features.d/debimg-helper-policy-rc.d.deb
+
+# install debimg features
 dpkg --root=build.d --install features.d/debimg-feature-*.deb
 
+# call chroot build script
 cp build.chroot build.d/
 chroot build.d /build.chroot
 rm build.d/build.chroot
 
+# re-enable rc.d operations and start-stop-daemon
 dpkg --root=build.d --purge debimg-helper-policy-rc.d
 
-sed -i 's/^KEYMAP=n/KEYMAP=y/' build.d/etc/initramfs-tools/initramfs.conf
+# unmount bind mounts
+unmount
 
-#umount build.d/dev
-#umount build.d/proc
-#umount build.d/sys
-umount build.d/var/cache/apt/archives
-
-# cleanup
+# cleanup (reduce image size)
 rm -rf --one-file-system build.d/var/cache/apt/*
 rm -rf --one-file-system build.d/var/lib/apt/lists/*
 rm -rf --one-file-system build.d/var/log/*

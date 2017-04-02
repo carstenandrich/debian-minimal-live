@@ -33,8 +33,14 @@ apt-get --assume-yes --no-install-recommends install \
 	\
 	xorg xserver-xorg-video-intel openbox tint2 gnuradio dosbox
 
+# use local keymap
+sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
+dpkg-reconfigure initramfs-tools
+
+# remove root password
 passwd -d root
 
+# use systemd services
 systemctl enable systemd-networkd.service
 systemctl enable systemd-resolved.service
 systemctl enable systemd-timesyncd.service
