@@ -1,5 +1,0 @@
-Package: debimg-feature-configpart
-Version: 1
-Architecture: all
-Maintainer: Carsten Andrich
-Description: merge config partition into filesystem root from initramfs
