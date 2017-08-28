@@ -1,4 +1,7 @@
 #!/bin/sh -eux
 
 rm -rf --one-file-system bootstrap.d
-cdebootstrap --include=dbus,usrmerge --exclude=gnupg1,cron,rsyslog,logrotate sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
+cdebootstrap --flavour=minimal \
+	--include=bsdmainutils,cpio,dbus,dmidecode,ifupdown,init,iproute2,iputils-ping,kmod,mount,nano,netbase,sensible-utils,systemd,systemd-sysv,tzdata,udev,usrmerge,vim-common,vim-tiny,wget,whiptail,xxd \
+	sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
+dpkg --root bootstrap.d --purge cdebootstrap-helper-rc.d
