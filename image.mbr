@@ -46,16 +46,16 @@ TIMEOUT 30
 MENU TITLE Debian Measurement OS
 
 LABEL default
-	MENU LABEL Default
+	MENU LABEL Default (unpluggable)
 	LINUX /boot/vmlinuz
 	INITRD /boot/initrd.img
-	APPEND root=/dev/disk/by-partuuid/$PTUUID-02 ro overlaysize=256m overlaycopyroot=0 configfs=/dev/disk/by-partuuid/$PTUUID-01 net.ifnames=0
+	APPEND root=/dev/disk/by-partuuid/$PTUUID-02 ro overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-partuuid/$PTUUID-01
 
-LABEL unpluggable
-	MENU LABEL Unpluggable (copy SquashFS to RAM)
+LABEL nocopy
+	MENU LABEL Nocopy (not unpluggable)
 	LINUX /boot/vmlinuz
 	INITRD /boot/initrd.img
-	APPEND root=/dev/disk/by-partuuid/$PTUUID-02 ro overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-partuuid/$PTUUID-01 net.ifnames=0
+	APPEND root=/dev/disk/by-partuuid/$PTUUID-02 ro overlaysize=256m overlaycopyroot=0 configfs=/dev/disk/by-partuuid/$PTUUID-01
 EOF
 
 cp --no-target-directory build.d/boot/initrd.img* image.mbr.boot.mnt/boot/initrd.img

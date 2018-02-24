@@ -29,7 +29,7 @@ apt-get --assume-yes --no-install-recommends install \
 	\
 	mdadm f2fs-tools ntfs-3g xfsprogs btrfs-progs \
 	build-essential linux-perf python3 strace \
-	libpopt0 libuhd003 uhd-host \
+	libpopt0 uhd-host \
 	libpopt-dev libuhd-dev libboost-dev meson \
 	\
 	xorg xserver-xorg-video-intel openbox tint2 gnuradio dosbox
