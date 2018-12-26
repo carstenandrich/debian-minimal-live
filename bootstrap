@@ -1,7 +1,9 @@
 #!/bin/sh -eux
 
 rm -rf --one-file-system bootstrap.d
-cdebootstrap --flavour=minimal \
+# cdebootstrap unusable for buster/tesing/sid due to https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=904699
+#cdebootstrap --flavour=minimal \
+debootstrap --merged-usr --variant=minbase \
 	--include=bsdmainutils,cpio,dbus,dmidecode,ifupdown,init,iproute2,iputils-ping,kmod,mount,nano,netbase,sensible-utils,systemd,systemd-sysv,tzdata,udev,usrmerge,vim-common,vim-tiny,wget,whiptail,xxd \
 	sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
-dpkg --root bootstrap.d --purge cdebootstrap-helper-rc.d
+#dpkg --root bootstrap.d --purge cdebootstrap-helper-rc.d
