@@ -1,0 +1,20 @@
+# authentication mechanisms
+PubkeyAuthentication yes
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+
+# user/group login permissions
+PermitRootLogin without-password
+AllowUsers root
+
+# disable DebianBanner/Motd
+DebianBanner no
+PrintMotd no
+
+# keep-alive options
+ClientAliveCountMax 4
+ClientAliveInterval 15
+TCPKeepAlive yes
+
+# enable SFTP
+Subsystem sftp internal-sftp
