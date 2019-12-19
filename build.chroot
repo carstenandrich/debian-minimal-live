@@ -32,7 +32,7 @@ apt-get --assume-yes --no-install-recommends install \
 	libpopt0 uhd-host \
 	libpopt-dev libuhd-dev libboost-dev meson \
 	\
-	xorg xserver-xorg-video-intel openbox tint2 gnuradio dosbox
+	xorg xserver-xorg-video-intel openbox tint2 gnuradio
 
 # use local keymap
 sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
