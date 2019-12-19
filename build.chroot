@@ -22,17 +22,17 @@ update-locale LANG=C.UTF-8
 apt-get --assume-yes --no-install-recommends install \
 	linux-image-amd64 firmware-linux-free firmware-misc-nonfree firmware-iwlwifi firmware-realtek \
 	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \
-	file htop less liblz4-tool lshw screen man-db manpages \
+	file htop less liblz4-tool lshw psmisc screen man-db manpages \
 	\
 	bind9-host ca-certificates ethtool iputils-ping iputils-arping iputils-tracepath \
 	netcat-openbsd openssh-server rsync socat tcpdump netsniff-ng \
 	\
-	mdadm f2fs-tools ntfs-3g xfsprogs btrfs-progs \
+	cryptsetup grub-pc mdadm f2fs-tools ntfs-3g xfsprogs btrfs-progs dosfstools \
 	build-essential linux-perf python3 strace \
 	libpopt0 uhd-host \
 	libpopt-dev libuhd-dev libboost-dev meson \
 	\
-	xorg xserver-xorg-video-intel openbox tint2 gnuradio dosbox
+	xorg xserver-xorg-video-intel openbox tint2 gnuradio
 
 # use local keymap
 sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
