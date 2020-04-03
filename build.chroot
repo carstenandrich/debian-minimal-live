@@ -1,18 +1,5 @@
 #!/bin/sh -eux
 
-# clear environment variables (to prevent locale issues)
-env | while read -r var ; do
-	varname=${var%%=*}
-
-	case "$varname" in
-		PATH|PWD|SHELL)
-			;;
-		*)
-			unset "$varname"
-			;;
-	esac
-done
-
 # see debconf(7)
 export DEBIAN_FRONTEND=noninteractive
 
