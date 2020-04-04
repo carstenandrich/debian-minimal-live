@@ -38,11 +38,11 @@ dpkg --root=build.d --install features.d/debimg-feature-*.deb
 
 # call chroot build script with clean environment (to prevent locale issues, etc.)
 cp build.chroot build.d/
-env --ignore-environment PATH="/usr/sbin:/usr/bin:/sbin:/bin" chroot build.d /build.chroot
+env --ignore-environment PATH="/usr/sbin:/usr/bin:/sbin:/bin" TERM="$TERM" USER="$USER" chroot build.d /build.chroot
 rm build.d/build.chroot
 
 # re-enable rc.d operations and start-stop-daemon
-dpkg --root=build.d --purge debimg-helper-policy-rc.d
+dpkg --root=build.d --purge chroot-disable-services
 
 # unmount bind mounts
 unmount
