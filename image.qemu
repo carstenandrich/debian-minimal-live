@@ -1,5 +1,10 @@
 #!/bin/sh -eux
 
+# cleanup (reduce image size)
+rm -rf --one-file-system build.d/var/cache/apt/*
+rm -rf --one-file-system build.d/var/lib/apt/lists/*
+rm -rf --one-file-system build.d/var/log/*
+
 rm -f image.squashfs
 mksquashfs build.d image.squashfs -noD -noF -noI -noX -e boot -e initrd.img -e vmlinuz
 

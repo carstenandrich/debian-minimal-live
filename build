@@ -25,12 +25,12 @@ echo "deb http://deb.debian.org/debian sid main contrib non-free" > build.d/etc/
 cp -r build.include.d/* build.d/
 
 # bind mount current system into build.d
-#mount --bind /dev build.d/dev
-#mount --bind /proc build.d/proc
-#mount --bind /sys build.d/sys
+mount --bind /dev build.d/dev
+mount --bind /proc build.d/proc
+mount --bind /sys build.d/sys
 mount --bind /var/cache/apt/archives build.d/var/cache/apt/archives
 
-# inhibit chroot helper that disables service invocation
+# install chroot helper that disables service invocation
 dpkg --root=build.d --install chroot-helpers.d/chroot-disable-services.deb
 
 # install debimg features
@@ -41,13 +41,8 @@ cp build.chroot build.d/
 env --ignore-environment PATH="/usr/sbin:/usr/bin:/sbin:/bin" TERM="$TERM" USER="$USER" chroot build.d /build.chroot
 rm build.d/build.chroot
 
-# re-enable rc.d operations and start-stop-daemon
+# remove chroot helper that disables service invocation
 dpkg --root=build.d --purge chroot-disable-services
 
 # unmount bind mounts
 unmount
-
-# cleanup (reduce image size)
-rm -rf --one-file-system build.d/var/cache/apt/*
-rm -rf --one-file-system build.d/var/lib/apt/lists/*
-rm -rf --one-file-system build.d/var/log/*
