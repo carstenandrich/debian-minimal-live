@@ -7,6 +7,10 @@ apt-get update
 apt-get --assume-yes install locales
 update-locale LANG=C.UTF-8
 apt-get --assume-yes --no-install-recommends install \
+	bsdmainutils cpio dbus dmidecode ifupdown init iproute2 iputils-ping \
+	kmod mount nano netbase sensible-utils systemd systemd-sysv tzdata udev \
+	usrmerge vim-common vim-tiny wget whiptail xxd \
+	\
 	linux-image-amd64 firmware-linux-free firmware-misc-nonfree firmware-iwlwifi firmware-realtek \
 	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \
 	file htop less liblz4-tool lshw psmisc screen man-db manpages \
