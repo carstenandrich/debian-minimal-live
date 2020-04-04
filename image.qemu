@@ -15,7 +15,7 @@ qemu-system-x86_64 -enable-kvm -machine q35 -m 1024 -nographic \
 	-drive file=image.squashfs,index=0,media=disk,format=raw \
 	-drive file=image.qemu.configfs.fat32,index=1,media=disk,format=raw \
 	-kernel build.d/boot/vmlinuz-* -initrd build.d/boot/initrd.img-* \
-	-append "root=/dev/sda ro console=ttyS0 overlaysize=256m overlaycopyroot=0 configfs=/dev/sdb net.ifnames=0"
+	-append "root=/dev/sda ro console=ttyS0 overlaysize=256m overlaycopyroot=0 configfs=/dev/sdb"
 	# add break=init to debug initramfs (see initramfs-tools (5))
 
 rm -f image.qemu.configfs.fat32 image.squashfs
