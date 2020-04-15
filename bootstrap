@@ -1,8 +1,8 @@
 #!/bin/sh -eux
 
 rm -rf --one-file-system bootstrap.d
-debootstrap --merged-usr --variant=minbase sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
+debootstrap --merged-usr --variant=minbase --include=whiptail sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
 
 # cdebootstrap unusable for buster/tesing/sid due to https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=904699
-#cdebootstrap --flavour=minimal sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
+#cdebootstrap --flavour=minimal --include=whiptail sid bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
 #dpkg --root bootstrap.d --purge cdebootstrap-helper-rc.d
