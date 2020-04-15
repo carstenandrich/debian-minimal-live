@@ -15,6 +15,10 @@ apt-get --assume-yes --no-install-recommends install \
 	kmod mount nano netbase sensible-utils systemd systemd-sysv tzdata udev \
 	vim-common vim-tiny
 
+# install debimg features (depend on systemd)
+dpkg --install /features.d/debimg-feature-*.deb
+
+# install remaining packages
 apt-get --assume-yes --no-install-recommends install \
 	linux-image-amd64 firmware-linux-free firmware-misc-nonfree firmware-iwlwifi firmware-realtek \
 	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \

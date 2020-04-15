@@ -33,13 +33,10 @@ mount --bind /var/cache/apt/archives build.d/var/cache/apt/archives
 # install chroot helper that disables service invocation
 dpkg --root=build.d --install chroot-disable-services.deb
 
-# install debimg features
-dpkg --root=build.d --install features.d/debimg-feature-*.deb
-
 # call chroot build script with clean environment (to prevent locale issues, etc.)
-cp build.chroot build.d/
+cp -r build.chroot features.d/ build.d/
 env --ignore-environment PATH="/usr/sbin:/usr/bin:/sbin:/bin" TERM="$TERM" USER="$USER" chroot build.d /build.chroot
-rm build.d/build.chroot
+rm -rf build.d/build.chroot build.d/features.d/
 
 # remove chroot helper that disables service invocation
 dpkg --root=build.d --purge chroot-disable-services
