@@ -31,7 +31,7 @@ mount --bind /sys build.d/sys
 mount --bind /var/cache/apt/archives build.d/var/cache/apt/archives
 
 # install chroot helper that disables service invocation
-dpkg --root=build.d --install chroot-helpers.d/chroot-disable-services.deb
+dpkg --root=build.d --install chroot-disable-services.deb
 
 # install debimg features
 dpkg --root=build.d --install features.d/debimg-feature-*.deb

@@ -1,7 +1,0 @@
-Package: chroot-disable-services
-Version: 0
-Architecture: all
-Maintainer: Carsten Andrich <carsten@andrich.name>
-Description: chroot helper disabling invocation of system services
- Sets up a /usr/sbin/policy-rc.d file that denies all invoke-rc.d actions by
- policy and replaces /sbin/start-stop-daemon with a no-op dummy.
