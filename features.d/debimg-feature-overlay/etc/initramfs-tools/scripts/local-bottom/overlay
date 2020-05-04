@@ -56,14 +56,14 @@ if [ $overlaycopyroot -eq 1 -o $overlaycopyroot -eq 2 ] ; then
 fi
 
 if [ $overlaycopyroot -eq 1 ] ; then
-	# unmount and copy root block device to lowerdir tmpfs and loop mount
-	# copy to actual lowerdir
+	# copy root squashfs file to lowerdir tmpfs, unmount root device, and loop
+	# mount the copied squashfs file
+	log_begin_msg "overlay: copying root filesystem to memory ... "
+	cp ${rootmnt}/root.squashfs /mnt/overlay/lower.tmpfs/root \
+		|| panic "ERROR: overlay: failed to copy ${rootmnt}/root.squashfs"
+	log_end_msg
 	umount ${rootmnt} \
 		|| panic "ERROR: overlay: failed to unmount ${rootmnt}"
-	log_begin_msg "overlay: copying root block device to memory ... "
-	cp ${ROOT} /mnt/overlay/lower.tmpfs/root \
-		|| panic "ERROR: overlay: failed to copy ${ROOT} block device"
-	log_end_msg
 	mount -o loop,ro /mnt/overlay/lower.tmpfs/root /mnt/overlay/lower \
 		|| panic "ERROR: overlay: failed to loop mount root block device copy from lowerdir tmpfs"
 fi
