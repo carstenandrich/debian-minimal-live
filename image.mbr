@@ -9,11 +9,11 @@ rm -f image.squashfs
 mksquashfs build.d image.squashfs -e boot -e initrd.img -e vmlinuz
 
 rm -f image.mbr.bin
-dd if=/dev/null of=image.mbr.bin bs=1G seek=1
+dd if=/dev/null of=image.mbr.bin bs=1M seek=256
 sfdisk image.mbr.bin <<-EOF
 	label: mbr
 
-	2048 2095071 U *
+	2048 + U *
 EOF
 
 dd if=/usr/lib/syslinux/mbr/mbr.bin of=image.mbr.bin conv=notrunc
@@ -25,6 +25,12 @@ UUID=$(blkid -s UUID -o value ${DEV}p1)
 mkdir -p image.mbr.boot.mnt
 mount ${DEV}p1 image.mbr.boot.mnt
 mkdir -p image.mbr.boot.mnt/boot/syslinux
+
+mkdir -p image.mbr.boot.mnt/EFI/BOOT/
+cp EFI/BOOT/* image.mbr.boot.mnt/EFI/BOOT/
+cat > image.mbr.boot.mnt/startup.nsh <<-EOF
+	\boot\vmlinuz ro root=/dev/disk/by-uuid/$UUID initrd=\boot\initrd.img overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
+EOF
 
 umount image.mbr.boot.mnt
 syslinux --install ${DEV}p1 --directory boot/syslinux
