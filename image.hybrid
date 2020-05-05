@@ -6,7 +6,7 @@ rm -rf --one-file-system build.d/var/lib/apt/lists/*
 rm -rf --one-file-system build.d/var/log/*
 
 rm -f build.squashfs
-mksquashfs build.d build.squashfs -e boot -e initrd.img -e vmlinuz
+mksquashfs build.d build.squashfs -comp zstd -e boot -e initrd.img -e vmlinuz
 SQUASHSIZE=$(stat -c %s build.squashfs)
 
 rm -f image.hybrid.bin
