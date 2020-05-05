@@ -47,16 +47,8 @@ DEFAULT default
 PROMPT 0
 TIMEOUT 30
 
-MENU TITLE Debian Measurement OS
-
 LABEL default
-	MENU LABEL Default (unpluggable)
-	LINUX /boot/vmlinuz
-	INITRD /boot/initrd.img
-	APPEND root=/dev/disk/by-uuid/$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
-
-LABEL nocopy
-	MENU LABEL Nocopy (not unpluggable)
+	MENU LABEL Default
 	LINUX /boot/vmlinuz
 	INITRD /boot/initrd.img
 	APPEND root=/dev/disk/by-uuid/$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
