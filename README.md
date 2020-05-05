@@ -19,8 +19,8 @@ Prerequisites (debian package names)
 ------------------------------------
 
 	apt-get install \
-		apt cdebootstrap coreutils dpkg fakeroot mount util-linux \
-		dosfstools parted squashfs-tools syslinux \
+		apt coreutils debootstrap dpkg fakeroot mount util-linux \
+		dosfstools fdisk squashfs-tools syslinux \
 		qemu-system-x86
 
 
@@ -41,11 +41,14 @@ packages. If the build fails the bind must be unmounted manually.
 The contents of build.include.pre.d will be copied into build.d before
 chrooting, the contents of build.include.post.d afterwards.
 
-### 3a.) # ./image.mbr
+### 3a.) # ./image.hybrid
 
-Builds an MBR partitioned disk image (image.mbr.bin) which can be dumped on any
-bootable storage medium, using a partition for the compressed SquashFS image
-and a FAT32 partition for bootloader (syslinux) and offline configuration.
+Builds an MBR partitioned disk image (`image.hybrid.bin`) which can be dumped
+on any bootable storage medium. The image contains a FAT32 UEFI system
+partition (ESP) with an MBR bootloader (SYSLINUX in folder `boot/`), an UEFI
+shell ([TianoCore EDK2](https://github.com/tianocore/edk2) in `EFI/BOOT/`), the
+Linux kernel image and initrd, the packed root file system (`root.squashfs`),
+and a directory for offline configuration (`configfs/`).
 The configuration will be initially populated from the directory
 image.config.default.d and copied into the root file system during early boot
 (initramfs), allowing to configure the boot process without re-building the
