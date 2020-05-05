@@ -20,26 +20,40 @@ dpkg --install /features.d/debimg-feature-*.deb
 
 # install remaining packages
 apt-get --assume-yes --no-install-recommends install \
-	linux-image-amd64 firmware-linux-free firmware-misc-nonfree firmware-iwlwifi firmware-realtek \
+	linux-image-amd64 firmware-linux firmware-realtek \
 	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \
-	file htop less liblz4-tool lshw psmisc screen man-db manpages \
+	file htop less lshw psmisc screen man-db manpages zstd \
 	\
-	bind9-host ca-certificates ethtool iputils-ping iputils-arping iputils-tracepath \
-	netcat-openbsd openssh-server rsync socat tcpdump netsniff-ng \
+	btrfs-progs cryptsetup dosfstools mdadm ntfs-3g xfsprogs \
 	\
-	cryptsetup grub-pc mdadm f2fs-tools ntfs-3g xfsprogs btrfs-progs dosfstools \
-	build-essential linux-perf python3 strace \
-	libpopt0 uhd-host \
-	libpopt-dev libuhd-dev libboost-dev meson \
+	bind9-dnsutils ca-certificates curl ethtool iputils-arping iputils-ping iputils-tracepath \
+	netcat-openbsd netsniff-ng openssh-client socat tcpdump wget \
 	\
-	xorg xserver-xorg-video-intel openbox tint2 gnuradio
+	linux-perf python3 strace \
+	\
+	kitty policykit-1 sway swayidle sway-backgrounds \
+	\
+	openssh-server \
+	\
+#	libpopt0 uhd-host \
+#	build-essential libpopt-dev libuhd-dev libboost-dev meson \
+#	xorg xserver-xorg-video-intel openbox tint2 gnuradio \
+
 
 # use local keymap
 sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
 dpkg-reconfigure initramfs-tools
 
-# remove root password
+useradd -d /home/user -s /bin/bash -m -G audio,dialout,input,sudo,video user
+
+# enable local login without password by deleting passwords from accounts
+# NOTE: remote login via SSH requires a non-empty password by default (unless
+#       PermitEmptyPasswords is yes in sshd_config). therefore, deleting
+#       passwords does not allow unauthenticated login, but effectively
+#       disables password authentication. login to these acconts is only
+#       possible via public key authentication.
 passwd -d root
+passwd -d user
 
 # use systemd services
 systemctl enable systemd-networkd.service
