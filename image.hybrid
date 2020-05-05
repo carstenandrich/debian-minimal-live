@@ -1,0 +1,75 @@
+#!/bin/sh -eux
+
+# cleanup (reduce image size)
+rm -rf --one-file-system build.d/var/cache/apt/*
+rm -rf --one-file-system build.d/var/lib/apt/lists/*
+rm -rf --one-file-system build.d/var/log/*
+
+rm -f build.squashfs
+mksquashfs build.d build.squashfs -e boot -e initrd.img -e vmlinuz
+SQUASHSIZE=$(stat -c %s build.squashfs)
+
+rm -f image.hybrid.bin
+dd if=/dev/null of=image.hybrid.bin bs=1M seek=$(($SQUASHSIZE / 1024 / 1024 + 64))
+sfdisk image.hybrid.bin <<-EOF
+	label: mbr
+	2048 + U *
+EOF
+
+dd if=/usr/lib/syslinux/mbr/mbr.bin of=image.hybrid.bin conv=notrunc
+
+DEV=$(losetup --find --show --partscan image.hybrid.bin)
+mkfs.vfat -F32 ${DEV}p1
+UUID=$(blkid -s UUID -o value ${DEV}p1)
+
+mkdir -p image.hybrid.mnt
+mount ${DEV}p1 image.hybrid.mnt
+mkdir -p image.hybrid.mnt/boot/syslinux
+
+mkdir -p image.hybrid.mnt/EFI/BOOT/
+cp EFI/BOOT/* image.hybrid.mnt/EFI/BOOT/
+cat > image.hybrid.mnt/startup.nsh <<-EOF
+	\boot\vmlinuz ro root=/dev/disk/by-uuid/$UUID initrd=\boot\initrd.img overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
+EOF
+
+umount image.hybrid.mnt
+syslinux --install ${DEV}p1 --directory boot/syslinux
+mount ${DEV}p1 image.hybrid.mnt
+
+# include required syslinux modules
+cp /usr/lib/syslinux/modules/bios/menu.c32 \
+   /usr/lib/syslinux/modules/bios/libutil.c32 \
+   image.hybrid.mnt/boot/syslinux/
+
+cat > image.hybrid.mnt/boot/syslinux/syslinux.cfg <<EOF
+UI menu.c32
+DEFAULT default
+PROMPT 0
+TIMEOUT 30
+
+MENU TITLE Debian Measurement OS
+
+LABEL default
+	MENU LABEL Default (unpluggable)
+	LINUX /boot/vmlinuz
+	INITRD /boot/initrd.img
+	APPEND root=/dev/disk/by-uuid/$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
+
+LABEL nocopy
+	MENU LABEL Nocopy (not unpluggable)
+	LINUX /boot/vmlinuz
+	INITRD /boot/initrd.img
+	APPEND root=/dev/disk/by-uuid/$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
+EOF
+
+cp --no-target-directory build.squashfs image.hybrid.mnt/root.squashfs
+rm build.squashfs
+cp --no-target-directory build.d/boot/initrd.img* image.hybrid.mnt/boot/initrd.img
+cp --no-target-directory build.d/boot/vmlinuz* image.hybrid.mnt/boot/vmlinuz
+cp -r image.configfs.default.d/ image.hybrid.mnt/configfs/
+
+umount image.hybrid.mnt
+losetup -d ${DEV}
+rmdir image.hybrid.mnt
+
+#qemu-system-x86_64 -enable-kvm -machine q35 -m 1024 -vga std -drive file=image.hybrid.bin,index=0,media=disk,format=raw
