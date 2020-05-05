@@ -22,7 +22,7 @@ dpkg --install /features.d/debimg-feature-*.deb
 apt-get --assume-yes --no-install-recommends install \
 	linux-image-amd64 firmware-linux firmware-realtek \
 	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \
-	file htop less lshw psmisc screen man-db manpages zstd \
+	file htop less lshw psmisc screen sudo man-db manpages zstd \
 	\
 	btrfs-progs cryptsetup dosfstools mdadm ntfs-3g xfsprogs \
 	\
