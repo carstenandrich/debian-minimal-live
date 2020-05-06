@@ -15,5 +15,10 @@ esac
 
 . /usr/share/initramfs-tools/hook-functions
 
-force_load squashfs
+force_load fat
+force_load vfat
+force_load nls_ascii
+force_load nls_cp437
+force_load nls_utf8
 force_load overlay
+force_load squashfs

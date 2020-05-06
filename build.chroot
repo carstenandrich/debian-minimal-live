@@ -16,7 +16,7 @@ apt-get --assume-yes --no-install-recommends install \
 	vim-common vim-tiny
 
 # install debimg features (depend on systemd)
-dpkg --install /features.d/debimg-feature-*.deb
+dpkg --install /features.d/debimg-feature-auto-mount.deb /features.d/debimg-feature-overlay.deb
 
 # install remaining packages
 apt-get --assume-yes --no-install-recommends install \

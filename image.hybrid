@@ -29,7 +29,7 @@ mkdir -p image.hybrid.mnt/boot/syslinux
 mkdir -p image.hybrid.mnt/EFI/BOOT/
 cp EFI/BOOT/* image.hybrid.mnt/EFI/BOOT/
 cat > image.hybrid.mnt/startup.nsh <<-EOF
-	\boot\vmlinuz ro root=/dev/disk/by-uuid/$UUID initrd=\boot\initrd.img overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
+	\boot\vmlinuz ro root=/dev/disk/by-uuid/$UUID initrd=\boot\initrd.img overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
 EOF
 
 umount image.hybrid.mnt
@@ -51,14 +51,14 @@ LABEL default
 	MENU LABEL Default
 	LINUX /boot/vmlinuz
 	INITRD /boot/initrd.img
-	APPEND root=/dev/disk/by-uuid/$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1 configfs=/dev/disk/by-uuid/$UUID
+	APPEND root=/dev/disk/by-uuid/$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
 EOF
 
 cp --no-target-directory build.squashfs image.hybrid.mnt/root.squashfs
 rm build.squashfs
 cp --no-target-directory build.d/boot/initrd.img* image.hybrid.mnt/boot/initrd.img
 cp --no-target-directory build.d/boot/vmlinuz* image.hybrid.mnt/boot/vmlinuz
-cp -r image.configfs.default.d/ image.hybrid.mnt/configfs/
+fakeroot sh -c 'cd image.configfs.default.d/ ; chown -R user:user home/user/ ; tar -czf ../image.hybrid.mnt/root.overlay.tar.gz etc/ root/ home/user/'
 
 umount image.hybrid.mnt
 losetup -d ${DEV}

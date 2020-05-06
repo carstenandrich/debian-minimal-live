@@ -34,7 +34,7 @@ done
 
 mkdir -p /mnt/overlay \
 	|| panic "ERROR: overlay: failed to create overlay tmpfs mount point"
-mount -t tmpfs -o size=$overlaysize,mode=0700 tmpfs /mnt/overlay \
+mount -t tmpfs -o mode=0700 tmpfs /mnt/overlay \
 	|| panic "ERROR: overlay: failed to mount tmpfs"
 mkdir /mnt/overlay/lower && mkdir /mnt/overlay/upper && mkdir /mnt/overlay/work \
 	|| panic "ERROR: overlay: failed to create overlay mount points"
@@ -59,12 +59,16 @@ if [ $overlaycopyroot -eq 1 ] ; then
 	# copy root squashfs file to lowerdir tmpfs, unmount root device, and loop
 	# mount the copied squashfs file
 	log_begin_msg "overlay: copying root filesystem to memory ... "
-	cp ${rootmnt}/root.squashfs /mnt/overlay/lower.tmpfs/root \
+	cp ${rootmnt}/root.squashfs /mnt/overlay/lower.tmpfs/ \
 		|| panic "ERROR: overlay: failed to copy ${rootmnt}/root.squashfs"
+	if [ -f ${rootmnt}/root.overlay.tar.gz ] ; then
+		cp ${rootmnt}/root.overlay.tar.gz /mnt/overlay/lower.tmpfs/ \
+			|| panic "ERROR: overlay: failed to copy ${rootmnt}/root.squashfs"
+	fi
 	log_end_msg
 	umount ${rootmnt} \
 		|| panic "ERROR: overlay: failed to unmount ${rootmnt}"
-	mount -o loop,ro /mnt/overlay/lower.tmpfs/root /mnt/overlay/lower \
+	mount -o loop,ro /mnt/overlay/lower.tmpfs/root.squashfs /mnt/overlay/lower \
 		|| panic "ERROR: overlay: failed to loop mount root block device copy from lowerdir tmpfs"
 fi
 
@@ -93,6 +97,12 @@ fi
 
 mount -t overlay overlay -o lowerdir=/mnt/overlay/lower,upperdir=/mnt/overlay/upper,workdir=/mnt/overlay/work ${rootmnt} \
 	|| panic "ERROR: overlay: failed to mount overlay"
+
+# unpack overlay
+if [ -f /mnt/overlay/lower.tmpfs/root.overlay.tar.gz ] ; then
+	tar -xzf /mnt/overlay/lower.tmpfs/root.overlay.tar.gz -C ${rootmnt} \
+		|| panic "ERROR: overlay: failed to unpack overlay in ${rootmnt}"
+fi
 
 mkdir -p ${rootmnt}/mnt/overlay \
 	|| panic "ERROR: overlay: failed to create overlay tmpfs mount point inside overlay"
