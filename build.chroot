@@ -31,7 +31,7 @@ apt-get --assume-yes --no-install-recommends install \
 	\
 	linux-perf python3 strace usb-modeswitch \
 	\
-	kitty policykit-1 sway swayidle sway-backgrounds suckless-tools \
+	kitty policykit-1 sway swayidle sway-backgrounds suckless-tools xwayland \
 	\
 	openssh-server \
 	\
