@@ -45,10 +45,10 @@ chrooting, the contents of build.include.post.d afterwards.
 
 Builds an MBR partitioned disk image (`image.hybrid.bin`) which can be dumped
 on any bootable storage medium. The image contains a FAT32 UEFI system
-partition (ESP) with an MBR bootloader (SYSLINUX in folder `boot/`), an UEFI
-shell ([TianoCore EDK2](https://github.com/tianocore/edk2) in `EFI/BOOT/`), the
-Linux kernel image and initrd, the packed root file system (`root.squashfs`),
-and a directory for offline configuration (`configfs/`).
+partition (ESP) with an MBR boot loader (SYSLINUX in folder `boot/`), an UEFI
+boot loader ([systemd-boot](https://www.freedesktop.org/software/systemd/man/systemd-boot.html)
+in `EFI/BOOT/`), the Linux kernel image and initrd, the packed root file system
+(`root.squashfs`), and a tarball for offline configuration (`root.overlay.tar.gz`).
 The configuration will be initially populated from the directory
 image.config.default.d and copied into the root file system during early boot
 (initramfs), allowing to configure the boot process without re-building the

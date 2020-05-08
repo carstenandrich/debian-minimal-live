@@ -26,10 +26,17 @@ mkdir -p image.hybrid.mnt
 mount ${DEV}p1 image.hybrid.mnt
 mkdir -p image.hybrid.mnt/boot/syslinux
 
-mkdir -p image.hybrid.mnt/EFI/BOOT/
-cp EFI/BOOT/* image.hybrid.mnt/EFI/BOOT/
-cat > image.hybrid.mnt/startup.nsh <<-EOF
-	\boot\vmlinuz ro root=/dev/disk/by-uuid/$UUID initrd=\boot\initrd.img overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
+mkdir -p image.hybrid.mnt/EFI/BOOT/ image.hybrid.mnt/loader/entries/
+cp build.d/usr/lib/systemd/boot/efi/systemd-bootx64.efi image.hybrid.mnt/EFI/BOOT/BOOTX64.EFI
+cat > image.hybrid.mnt/loader/loader.conf <<-EOF
+	default  debian.conf
+	timeout  3
+EOF
+cat > image.hybrid.mnt/loader/entries/debian.conf <<-EOF
+	title   Debian Linux
+	linux   /vmlinuz
+	initrd  /initrd.img
+	options root=UUID=$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
 EOF
 
 umount image.hybrid.mnt
@@ -47,17 +54,19 @@ DEFAULT default
 PROMPT 0
 TIMEOUT 30
 
+MENU TITLE Debian Linux
+
 LABEL default
 	MENU LABEL Default
-	LINUX /boot/vmlinuz
-	INITRD /boot/initrd.img
-	APPEND root=/dev/disk/by-uuid/$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
+	LINUX /vmlinuz
+	INITRD /initrd.img
+	APPEND root=UUID=$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
 EOF
 
 cp --no-target-directory build.squashfs image.hybrid.mnt/root.squashfs
 rm build.squashfs
-cp --no-target-directory build.d/boot/initrd.img* image.hybrid.mnt/boot/initrd.img
-cp --no-target-directory build.d/boot/vmlinuz* image.hybrid.mnt/boot/vmlinuz
+cp --no-target-directory build.d/boot/initrd.img* image.hybrid.mnt/initrd.img
+cp --no-target-directory build.d/boot/vmlinuz* image.hybrid.mnt/vmlinuz
 fakeroot sh -c 'cd image.configfs.default.d/ ; chown -R user:user home/user/ ; tar -czf ../image.hybrid.mnt/root.overlay.tar.gz etc/ root/ home/user/'
 
 umount image.hybrid.mnt
