@@ -44,16 +44,11 @@ apt-get --assume-yes --no-install-recommends install \
 sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
 dpkg-reconfigure initramfs-tools
 
-useradd -d /home/user -s /bin/bash -G audio,dialout,input,sudo,video user
 
-# enable local login without password by deleting passwords from accounts
-# NOTE: remote login via SSH requires a non-empty password by default (unless
-#       PermitEmptyPasswords is yes in sshd_config). therefore, deleting
-#       passwords does not allow unauthenticated login, but effectively
-#       disables password authentication. login to these acconts is only
-#       possible via public key authentication.
-passwd -d root
-passwd -d user
+# create unprivileged user and set usernames as password
+useradd --create-home -d /home/user -s /bin/bash -G audio,dialout,input,sudo,video user
+usermod --password '$6$DUw/Oso.KrgRan9V$qkNgXVhr6Wmir8DG/hrTA79/8mgS3RJUh8WrnzOXgv1G8zviQilNjivKdtLzV.FXZhKvIa.24zH93bmmGSkRm1' root
+usermod --password '$6$UOf.VadFG3L54boJ$FWuE0GRpb9HVdCxSaqxTPcSAozWzJsf/QnC4QME5FvzojinkGafPzVmXfsBwr2ffu92rodaInH5iMYysw9daK0' user
 
 # use systemd services
 systemctl enable systemd-networkd.service
