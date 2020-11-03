@@ -24,14 +24,14 @@ apt-get --assume-yes --no-install-recommends install \
 	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \
 	file htop less lshw psmisc screen sudo man-db manpages zstd \
 	\
-	btrfs-progs cryptsetup dosfstools fdisk mdadm ntfs-3g xfsprogs \
+	btrfs-progs cryptsetup-bin dosfstools fdisk mdadm ntfs-3g xfsprogs \
 	\
 	bind9-dnsutils ca-certificates curl ethtool iputils-arping iputils-ping iputils-tracepath \
 	netcat-openbsd netsniff-ng openssh-client socat tcpdump wget wireguard-tools \
 	\
 	linux-perf python3 strace usb-modeswitch \
 	\
-	kitty policykit-1 sway swayidle sway-backgrounds suckless-tools xwayland \
+	kitty policykit-1 sway swayidle swaylock sway-backgrounds suckless-tools wofi xwayland \
 	\
 	openssh-server \
 	\
