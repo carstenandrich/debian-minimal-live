@@ -1,0 +1,53 @@
+#!/bin/sh -eux
+
+# cleanup (reduce image size)
+rm -rf --one-file-system build.d/var/cache/apt/*
+rm -rf --one-file-system build.d/var/lib/apt/lists/*
+rm -rf --one-file-system build.d/var/log/*
+
+rm -f build.squashfs
+mksquashfs build.d build.squashfs -comp zstd -e boot -e initrd.img -e vmlinuz
+SQUASHSIZE=$(stat -c %s build.squashfs)
+
+rm -f image.uefi.bin
+dd if=/dev/null of=image.uefi.bin bs=1M seek=$(($SQUASHSIZE / 1024 / 1024 + 64))
+sfdisk image.uefi.bin <<-EOF
+	label: mbr
+	2048 + U *
+EOF
+
+DEV=$(losetup --find --show --partscan image.uefi.bin)
+mkfs.vfat -F32 ${DEV}p1
+UUID=$(blkid -s UUID -o value ${DEV}p1)
+
+mkdir -p image.uefi.mnt
+mount ${DEV}p1 image.uefi.mnt
+
+mkdir -p image.uefi.mnt/EFI/BOOT/ image.uefi.mnt/loader/entries/
+cp build.d/usr/lib/systemd/boot/efi/systemd-bootx64.efi image.uefi.mnt/EFI/BOOT/BOOTX64.EFI
+cat > image.uefi.mnt/loader/loader.conf <<-EOF
+	default  debian.conf
+	timeout  3
+EOF
+cat > image.uefi.mnt/loader/entries/debian.conf <<-EOF
+	title   Debian Linux
+	linux   /vmlinuz
+	initrd  /initrd.img
+	options root=UUID=$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
+EOF
+
+cp --no-target-directory build.squashfs image.uefi.mnt/root.squashfs
+rm build.squashfs
+cp --no-target-directory build.d/boot/initrd.img* image.uefi.mnt/initrd.img
+cp --no-target-directory build.d/boot/vmlinuz* image.uefi.mnt/vmlinuz
+
+# create overlay tarball with appropriate file attributes
+tar -cf image.uefi.mnt/root.overlay.tar --owner=root:0    --group=root:0    -C image.configfs.default.d/ etc/ root/
+tar -rf image.uefi.mnt/root.overlay.tar --owner=user:1000 --group=user:1000 -C image.configfs.default.d/ home/user/
+gzip image.uefi.mnt/root.overlay.tar
+
+umount image.uefi.mnt
+losetup -d ${DEV}
+rmdir image.uefi.mnt
+
+#qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga std -drive file=image.uefi.bin,index=0,media=disk,format=raw
