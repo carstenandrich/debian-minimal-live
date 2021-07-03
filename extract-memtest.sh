@@ -30,10 +30,10 @@ cleanup()
 }
 trap "cleanup" EXIT INT
 
-# create temporary directory and
+# create temporary directory
 TMPDIR=$(mktemp --directory --tmpdir memtest-dl.XXXXXXXXXX)
 
-# download and extract memtest zip archive
+# extract memtest zip archive
 unzip -q $MEMTEST_ZIP -d $TMPDIR
 
 # mount memtest usb image file

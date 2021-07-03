@@ -35,6 +35,13 @@ cat > image.uefi.mnt/loader/entries/debian.conf <<-EOF
 	initrd  /initrd.img
 	options root=UUID=$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
 EOF
+if [ -f "MemTest86/BOOTX64.efi" ] ; then
+	cp -r MemTest86/ image.uefi.mnt/EFI/
+	cat > image.uefi.mnt/loader/entries/memtest.conf <<-EOF
+		title   MemTest86
+		efi     /EFI/MemTest86/BOOTX64.efi
+	EOF
+fi
 
 cp --no-target-directory build.squashfs image.uefi.mnt/root.squashfs
 rm build.squashfs
@@ -50,4 +57,9 @@ umount image.uefi.mnt
 losetup -d ${DEV}
 rmdir image.uefi.mnt
 
+# run uefi image via qemu
 #qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga std -drive file=image.uefi.bin,index=0,media=disk,format=raw
+
+# run uefi image via qemu with additional disk for testing installer
+#dd if=/dev/null bs=1G seek=8 of=/tmp/sdb.bin
+#qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga std -drive file=image.uefi.bin,index=0,media=disk,format=raw -drive file=/tmp/sdb.bin,index=1,media=disk,format=raw
