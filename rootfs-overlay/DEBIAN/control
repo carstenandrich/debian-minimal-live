@@ -1,4 +1,4 @@
-Package: debimg-feature-overlay
+Package: rootfs-overlay
 Version: 1
 Architecture: all
 Maintainer: Carsten Andrich

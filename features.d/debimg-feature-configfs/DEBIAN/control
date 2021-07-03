@@ -1,5 +1,0 @@
-Package: debimg-feature-configfs
-Version: 1
-Architecture: all
-Maintainer: Carsten Andrich
-Description: config filesystem being merged into root fs during early-boot (initramfs)

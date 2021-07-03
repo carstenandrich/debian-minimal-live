@@ -1,9 +1,0 @@
-#!/bin/sh -eux
-
-if [ -n "${1:-}" ] ; then
-	fakeroot dpkg-deb -b "$1"
-else
-	for dir in */ ; do
-		fakeroot dpkg-deb -b "$dir"
-	done
-fi

@@ -15,9 +15,6 @@ apt-get --assume-yes --no-install-recommends install \
 	kmod mount nano netbase sensible-utils systemd systemd-sysv tzdata udev \
 	vim-common vim-tiny
 
-# install debimg features (depend on systemd)
-dpkg --install /features.d/debimg-feature-auto-mount.deb /features.d/debimg-feature-overlay.deb
-
 # install remaining packages
 apt-get --assume-yes --no-install-recommends install \
 	linux-image-amd64 firmware-linux firmware-realtek \
@@ -37,11 +34,9 @@ apt-get --assume-yes --no-install-recommends install \
 #	build-essential libpopt-dev libuhd-dev libboost-dev meson \
 #	xorg xserver-xorg-video-intel openbox tint2 gnuradio \
 
-
 # use local keymap
 sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
 dpkg-reconfigure initramfs-tools
-
 
 # create unprivileged user and set usernames as password (generate via `openssl passwd -1 -salt ""`)
 useradd --create-home -d /home/user -s /bin/bash -G audio,dialout,input,sudo,video user

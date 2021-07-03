@@ -30,16 +30,16 @@ mount --bind /proc build.d/proc
 mount --bind /sys build.d/sys
 mount --bind /var/cache/apt/archives build.d/var/cache/apt/archives
 
-# install chroot helper that disables service invocation
-dpkg --root=build.d --install chroot-disable-services.deb
+# install rootfs-overlay package (handles overlayfs setup via initramfs scripts)
+dpkg --root=build.d --install rootfs-overlay.deb
 
 # call chroot build script with clean environment (to prevent locale issues, etc.)
-cp -r build.chroot features.d/ build.d/
+cp build.chroot build.d/
 env --ignore-environment PATH="/usr/sbin:/usr/bin:/sbin:/bin" TERM="$TERM" USER="$USER" chroot build.d /build.chroot
 rm -rf build.d/build.chroot build.d/features.d/
 
-# remove chroot helper that disables service invocation
-dpkg --root=build.d --purge chroot-disable-services
+# remove cdebootstrap helper that disables service invocation
+dpkg --root=build.d --purge cdebootstrap-helper-rc.d
 
 # unmount bind mounts
 unmount

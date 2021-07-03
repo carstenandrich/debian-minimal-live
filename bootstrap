@@ -2,8 +2,9 @@
 
 rm -rf --one-file-system bootstrap.d
 
+# in minimal flavor, cdebootstrap installs cdebootstrap-helper-rc.d that prevents service invocation
 cdebootstrap --flavour=minimal --include=whiptail bullseye bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
-dpkg --root bootstrap.d --purge cdebootstrap-helper-rc.d
 
 # alternative to cdebootstrap if it breaks again: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=928908
 #debootstrap --merged-usr --variant=minbase --include=whiptail bullseye bootstrap.d http://deb.debian.org/debian | tee bootstrap.log 2>&1
+#dpkg --root bootstrap.d --install /usr/share/cdebootstrap/cdebootstrap-helper-rc.d.deb
