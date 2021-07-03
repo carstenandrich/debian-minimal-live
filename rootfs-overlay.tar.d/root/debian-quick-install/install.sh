@@ -11,6 +11,8 @@ DEV="/dev/nvme0n1"
 DEV_ESP="/dev/nvme0n1p1"
 ROOT_DEV="/dev/nvme0n1p2"
 ROOT_MOUNT="/mnt/root"
+XKBMODEL="pc105"
+XKBLAYOUT="de"
 
 unmount()
 {
@@ -33,8 +35,8 @@ trap "unmount" EXIT INT
 sfdisk $DEV <<-EOF
 	label: gpt
 
-	name=esp,  start=   2048, size=  2097152, type=uefi, bootable
-	name=root, start=2099200, size=8G, type=linux
+	name=esp,  size=1G, type=uefi, bootable
+	name=root, size=4G, type=linux
 EOF
 
 # wait for devices to be created
@@ -96,8 +98,22 @@ fi
 cat >$ROOT_MOUNT/@root/etc/fstab <<-EOF
 	UUID="$ROOT_UUID" /         btrfs relatime,ssd            0 0
 	UUID="$ROOT_UUID" /mnt/root btrfs relatime,ssd,subvolid=5 0 0
-	UUID="$UUID_ESP"                            /boot/efi vfat relatime 0 0
+	UUID="$UUID_ESP"                            /boot/efi vfat  relatime                0 0
 	tmpfs                                       /tmp      tmpfs mode=1777               0 0
+EOF
+
+# configure keyboard layout
+cat > $ROOT_MOUNT/@root/etc/default/keyboard <<-EOF
+	# KEYBOARD CONFIGURATION FILE
+
+	# Consult the keyboard(5) manual page.
+
+	XKBMODEL="$XKBMODEL"
+	XKBLAYOUT="$XKBLAYOUT"
+	XKBVARIANT=""
+	XKBOPTIONS=""
+
+	BACKSPACE="guess"
 EOF
 
 # create /etc/kernel/cmdline
