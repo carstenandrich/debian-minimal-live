@@ -21,20 +21,18 @@ dpkg --install /features.d/debimg-feature-auto-mount.deb /features.d/debimg-feat
 # install remaining packages
 apt-get --assume-yes --no-install-recommends install \
 	linux-image-amd64 firmware-linux firmware-realtek \
-	bash-completion busybox console-setup keyboard-configuration irqbalance pciutils usbutils \
+	bash-completion busybox cdebootstrap console-setup keyboard-configuration irqbalance pciutils usbutils \
 	file htop less lshw psmisc screen sudo man-db manpages zstd \
 	\
 	btrfs-progs cryptsetup-bin dosfstools fdisk mdadm ntfs-3g xfsprogs \
 	\
 	bind9-dnsutils ca-certificates curl ethtool iputils-arping iputils-ping iputils-tracepath \
-	netcat-openbsd netsniff-ng openssh-client socat tcpdump wget wireguard-tools \
+	netcat-openbsd netsniff-ng openssh-client openssh-server socat tcpdump wget wireguard-tools \
 	\
 	linux-perf python3 strace usb-modeswitch \
-	\
-	kitty policykit-1 sway swayidle swaylock sway-backgrounds suckless-tools wofi xwayland \
-	\
-	openssh-server \
-	\
+#	\
+#	kitty policykit-1 sway swayidle swaylock sway-backgrounds suckless-tools wofi xwayland \
+#	\
 #	libpopt0 uhd-host \
 #	build-essential libpopt-dev libuhd-dev libboost-dev meson \
 #	xorg xserver-xorg-video-intel openbox tint2 gnuradio \
@@ -45,10 +43,10 @@ sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
 dpkg-reconfigure initramfs-tools
 
 
-# create unprivileged user and set usernames as password
+# create unprivileged user and set usernames as password (generate via `openssl passwd -1 -salt ""`)
 useradd --create-home -d /home/user -s /bin/bash -G audio,dialout,input,sudo,video user
-usermod --password '$6$DUw/Oso.KrgRan9V$qkNgXVhr6Wmir8DG/hrTA79/8mgS3RJUh8WrnzOXgv1G8zviQilNjivKdtLzV.FXZhKvIa.24zH93bmmGSkRm1' root
-usermod --password '$6$UOf.VadFG3L54boJ$FWuE0GRpb9HVdCxSaqxTPcSAozWzJsf/QnC4QME5FvzojinkGafPzVmXfsBwr2ffu92rodaInH5iMYysw9daK0' user
+usermod --password '$1$$oCLuEVgI1iAqOA8pwkzAg1' root
+usermod --password '$1$$ex9cQFo.PV11eSLXJFZuj.' user
 
 # use systemd services
 systemctl enable systemd-networkd.service
