@@ -1,0 +1,6 @@
+Package: update-systemd-boot
+Version: 0.1
+Architecture: all
+Maintainer: Carsten Andrich <carsten@andrich.name>
+Depends: systemd (>=246)
+Description: Automatic synchronization of kernels and initrds  Kernel hooks for automatic updates of systemd-boot via kernel-install
