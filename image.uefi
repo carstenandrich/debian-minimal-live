@@ -23,6 +23,11 @@ UUID=$(blkid -s UUID -o value ${DEV}p1)
 mkdir -p image.uefi.mnt
 mount ${DEV}p1 image.uefi.mnt
 
+# get kernel version
+KERNEL=$(readlink build.d/vmlinuz)
+KERNEL_VERSION=${KERNEL#boot/vmlinuz-}
+
+# create systemd-boot configuration
 mkdir -p image.uefi.mnt/EFI/BOOT/ image.uefi.mnt/loader/entries/
 cp build.d/usr/lib/systemd/boot/efi/systemd-bootx64.efi image.uefi.mnt/EFI/BOOT/BOOTX64.EFI
 cat > image.uefi.mnt/loader/loader.conf <<-EOF
@@ -30,15 +35,15 @@ cat > image.uefi.mnt/loader/loader.conf <<-EOF
 	timeout  3
 EOF
 cat > image.uefi.mnt/loader/entries/debian.conf <<-EOF
-	title   Debian Linux (copy to ramdisk, boot medium can be unplugged)
-	linux   /vmlinuz
-	initrd  /initrd.img
+	title   Debian Linux $KERNEL_VERSION (copy to ramdisk, boot medium unpluggable)
+	linux   /vmlinuz-$KERNEL_VERSION
+	initrd  /initrd.img-$KERNEL_VERSION
 	options root=UUID=$UUID ro rootfs-overlay-size=256m rootfs-overlay-copy=1
 EOF
 cat > image.uefi.mnt/loader/entries/debian-nocopy.conf <<-EOF
-	title   Debian Linux (load from boot medium)
-	linux   /vmlinuz
-	initrd  /initrd.img
+	title   Debian Linux $KERNEL_VERSION (load from boot medium)
+	linux   /vmlinuz-$KERNEL_VERSION
+	initrd  /initrd.img-$KERNEL_VERSION
 	options root=UUID=$UUID ro rootfs-overlay-size=256m rootfs-overlay-copy=0
 EOF
 if [ -f "MemTest86/BOOTX64.efi" ] ; then
@@ -49,14 +54,14 @@ if [ -f "MemTest86/BOOTX64.efi" ] ; then
 	EOF
 fi
 
+# copy kernel, initramfs, and squashfs on boot partition
+cp build.d/boot/initrd.img-$KERNEL_VERSION build.d/boot/vmlinuz-$KERNEL_VERSION image.uefi.mnt/
 cp --no-target-directory build.squashfs image.uefi.mnt/root.squashfs
 rm build.squashfs
-cp --no-target-directory build.d/boot/initrd.img* image.uefi.mnt/initrd.img
-cp --no-target-directory build.d/boot/vmlinuz* image.uefi.mnt/vmlinuz
 
 # create overlay tarball with appropriate file attributes
-tar -cf image.uefi.mnt/rootfs-overlay.tar --owner=root:0    --group=root:0    -C image.configfs.default.d/ etc/ root/
-tar -rf image.uefi.mnt/rootfs-overlay.tar --owner=user:1000 --group=user:1000 -C image.configfs.default.d/ home/user/
+tar -cf image.uefi.mnt/rootfs-overlay.tar --owner=root:0    --group=root:0    -C rootfs-overlay.tar.d/ etc/ root/
+tar -rf image.uefi.mnt/rootfs-overlay.tar --owner=user:1000 --group=user:1000 -C rootfs-overlay.tar.d/ home/user/
 gzip image.uefi.mnt/rootfs-overlay.tar
 
 umount image.uefi.mnt

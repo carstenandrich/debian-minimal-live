@@ -8,6 +8,7 @@ rm -rf --one-file-system build.d/var/log/*
 rm -f image.squashfs
 mksquashfs build.d image.squashfs -noD -noF -noI -noX -e boot -e initrd.img -e vmlinuz
 
+# FIXME: rootfs-overlay expects the root file system to be a vfat partition and not a squashfs
 qemu-system-x86_64 -enable-kvm -machine q35 -m 1024 -nographic \
 	-drive file=image.squashfs,index=0,media=disk,format=raw \
 	-kernel build.d/boot/vmlinuz-* -initrd build.d/boot/initrd.img-* \
