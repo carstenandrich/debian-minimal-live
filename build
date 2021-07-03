@@ -21,8 +21,12 @@ cp -a --reflink=auto bootstrap.d build.d
 # add apt mirror
 echo "deb http://deb.debian.org/debian sid main contrib non-free" > build.d/etc/apt/sources.list
 
-# copy include directory into build.d
-cp -r --preserve=mode,timestamps build.include.d/* build.d/
+# configure hostname
+echo "live" > build.d/etc/hostname
+cat > build.d/etc/hosts <<-EOF
+	127.0.0.1 localhost
+	127.0.1.1 live
+EOF
 
 # bind mount current system into build.d
 mount --bind /dev build.d/dev

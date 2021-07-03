@@ -34,6 +34,20 @@ apt-get --assume-yes --no-install-recommends install \
 #	build-essential libpopt-dev libuhd-dev libboost-dev meson \
 #	xorg xserver-xorg-video-intel openbox tint2 gnuradio \
 
+# configure keyboard layout
+cat > /etc/default/keyboard <<-EOF
+	# KEYBOARD CONFIGURATION FILE
+
+	# Consult the keyboard(5) manual page.
+
+	XKBMODEL="pc105"
+	XKBLAYOUT="de"
+	XKBVARIANT=""
+	XKBOPTIONS=""
+
+	BACKSPACE="guess"
+EOF
+
 # use local keymap
 sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
 dpkg-reconfigure initramfs-tools
