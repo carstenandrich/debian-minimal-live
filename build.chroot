@@ -18,7 +18,7 @@ apt-get --assume-yes --no-install-recommends install \
 # install remaining packages
 apt-get --assume-yes --no-install-recommends install \
 	linux-image-amd64 firmware-linux firmware-realtek \
-	bash-completion busybox cdebootstrap console-setup keyboard-configuration irqbalance pciutils usbutils \
+	bash-completion busybox cdebootstrap console-setup keyboard-configuration pciutils usbutils \
 	file htop less lshw psmisc screen sudo man-db manpages zstd \
 	\
 	btrfs-progs cryptsetup-bin dosfstools fdisk mdadm ntfs-3g xfsprogs \
