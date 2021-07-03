@@ -30,10 +30,16 @@ cat > image.uefi.mnt/loader/loader.conf <<-EOF
 	timeout  3
 EOF
 cat > image.uefi.mnt/loader/entries/debian.conf <<-EOF
-	title   Debian Linux
+	title   Debian Linux (copy to ramdisk, boot medium can be unplugged)
 	linux   /vmlinuz
 	initrd  /initrd.img
-	options root=UUID=$UUID ro overlayroot=root.squashfs overlaysize=256m overlaycopyroot=1
+	options root=UUID=$UUID ro rootfs-overlay-size=256m rootfs-overlay-copy=1
+EOF
+cat > image.uefi.mnt/loader/entries/debian-nocopy.conf <<-EOF
+	title   Debian Linux (load from boot medium)
+	linux   /vmlinuz
+	initrd  /initrd.img
+	options root=UUID=$UUID ro rootfs-overlay-size=256m rootfs-overlay-copy=0
 EOF
 if [ -f "MemTest86/BOOTX64.efi" ] ; then
 	cp -r MemTest86/ image.uefi.mnt/EFI/
@@ -49,9 +55,9 @@ cp --no-target-directory build.d/boot/initrd.img* image.uefi.mnt/initrd.img
 cp --no-target-directory build.d/boot/vmlinuz* image.uefi.mnt/vmlinuz
 
 # create overlay tarball with appropriate file attributes
-tar -cf image.uefi.mnt/root.overlay.tar --owner=root:0    --group=root:0    -C image.configfs.default.d/ etc/ root/
-tar -rf image.uefi.mnt/root.overlay.tar --owner=user:1000 --group=user:1000 -C image.configfs.default.d/ home/user/
-gzip image.uefi.mnt/root.overlay.tar
+tar -cf image.uefi.mnt/rootfs-overlay.tar --owner=root:0    --group=root:0    -C image.configfs.default.d/ etc/ root/
+tar -rf image.uefi.mnt/rootfs-overlay.tar --owner=user:1000 --group=user:1000 -C image.configfs.default.d/ home/user/
+gzip image.uefi.mnt/rootfs-overlay.tar
 
 umount image.uefi.mnt
 losetup -d ${DEV}
