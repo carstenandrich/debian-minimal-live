@@ -27,12 +27,8 @@ apt-get --assume-yes --no-install-recommends install \
 	netcat-openbsd netsniff-ng openssh-client openssh-server socat tcpdump wget wireguard-tools \
 	\
 	linux-perf python3 strace usb-modeswitch \
-#	\
-#	kitty policykit-1 sway swayidle swaylock sway-backgrounds suckless-tools wofi xwayland \
-#	\
-#	libpopt0 uhd-host \
-#	build-essential libpopt-dev libuhd-dev libboost-dev meson \
-#	xorg xserver-xorg-video-intel openbox tint2 gnuradio \
+	\
+	kitty policykit-1 sway swayidle swaylock sway-backgrounds wofi
 
 # configure keyboard layout
 cat > /etc/default/keyboard <<-EOF

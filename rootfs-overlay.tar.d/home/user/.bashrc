@@ -1,4 +1,3 @@
-# source default .bashrc
 . /etc/skel/.bashrc
 
 # PROMPT
