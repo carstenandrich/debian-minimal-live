@@ -12,9 +12,12 @@ apt-get --assume-yes install locales
 update-locale LANG=C.UTF-8
 
 # install subset of important packages plus some personal favorites
+# FIXME: as of systemd package version 251.2-3, systemd-boot was split off into separate packaged, see:
+#        https://salsa.debian.org/systemd-team/systemd/-/blob/debian/251.2-3/debian/changelog
+#        the systemd-boot package does not exist on current Debian stable (Bullseye) or prior versions
 apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
 	bsdmainutils cpio dbus dmidecode init iproute2 iputils-ping \
-	kmod mount nano netbase sensible-utils systemd systemd-sysv tzdata udev \
+	kmod mount nano netbase sensible-utils systemd systemd-boot systemd-sysv tzdata udev \
 	vim-common vim-tiny
 
 # install remaining packages
