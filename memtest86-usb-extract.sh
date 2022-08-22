@@ -42,6 +42,6 @@ LOOPDEV=$(losetup --find --partscan --read-only --show $TMPDIR/memtest86-usb.img
 mount -o ro ${LOOPDEV}p1 $TMPDIR/mnt
 
 # copy memtest
-cp -r $TMPDIR/mnt/EFI/BOOT/ $MEMTEST_DIR
+cp -a $TMPDIR/mnt/EFI/BOOT/ $MEMTEST_DIR
 
 echo "Successfully extracted MemTest86."
