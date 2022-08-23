@@ -8,8 +8,8 @@ clean:
 	rm -rf bootstrap rootfs image_uefi.bin rootfs-overlay.deb
 
 # dependency: build rootfs-overlay.deb from source files
-rootfs-overlay.deb: rootfs-overlay
-	fakeroot dpkg-deb -b "rootfs-overlay"
+rootfs-overlay.deb: rootfs-overlay.deb.d
+	fakeroot dpkg-deb -b rootfs-overlay.deb.d rootfs-overlay.deb
 
 # first step: bootstrap minimal system
 # alternative to cdebootstrap if it breaks again: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=928908
