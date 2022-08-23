@@ -10,13 +10,14 @@ apt-get --assume-yes install locales
 update-locale LANG=C.UTF-8
 
 # install subset of important packages plus some personal favorites
-# FIXME: as of systemd package version 251.2-3, systemd-boot was split off into separate packaged, see:
+# FIXME: as of systemd package version 251.2-3, systemd-boot was split off into separate package, see:
 #        https://salsa.debian.org/systemd-team/systemd/-/blob/debian/251.2-3/debian/changelog
 #        the systemd-boot package does not exist on current Debian stable (Bullseye) or prior versions
 apt-get --assume-yes --no-install-recommends install \
-	bsdmainutils cpio dbus dmidecode init iproute2 iputils-ping \
-	kmod mount nano netbase sensible-utils systemd systemd-boot systemd-sysv tzdata udev \
-	vim-common vim-tiny
+	bsdmainutils cpio dbus dmidecode init iproute2 \
+	kmod mount nano netbase sensible-utils \
+	systemd systemd-boot systemd-sysv systemd-timesyncd \
+	tzdata udev vim-common vim-tiny
 
 # install remaining packages
 apt-get --assume-yes --no-install-recommends install \
@@ -32,6 +33,17 @@ apt-get --assume-yes --no-install-recommends install \
 	linux-perf python3 strace usb-modeswitch \
 	\
 	kitty policykit-1 sway swayidle swaylock sway-backgrounds wofi
+
+
+# install systemd-resolved last (breaks DNS resolution)
+# FIXME: as of systemd package version 252.3-2 systemd-resolved was split off into separate package, see:
+#        https://salsa.debian.org/systemd-team/systemd/-/blob/debian/251.3-2/debian/systemd.NEWS
+#        the systemd-resolved package does not exist on current Debian stable (Bullseye) or prior versions
+# FIXME: installing systemd-resolved overwrites /etc/resolv.conf, breaking DNS
+#        resolution, because resolved won't be running inside the chroot
+#        (service invocation is inhibited) and may not be running outside of it.
+apt-get --assume-yes --no-install-recommends install \
+	systemd-resolved
 
 # configure keyboard layout
 cat > /etc/default/keyboard <<-EOF
@@ -60,4 +72,5 @@ usermod --password '$1$$ex9cQFo.PV11eSLXJFZuj.' user
 systemctl enable systemd-networkd.service
 systemctl enable systemd-resolved.service
 systemctl enable systemd-timesyncd.service
+# TODO: link to stub-resolv.conf instead?
 ln -fs /run/systemd/resolve/resolv.conf /etc/resolv.conf

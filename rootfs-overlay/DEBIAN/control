@@ -1,5 +1,5 @@
 Package: rootfs-overlay
-Version: 1
+Version: 0.1
 Architecture: all
 Maintainer: Carsten Andrich
 Description: mount root filesystem read-only using overlayfs and tmpfs
