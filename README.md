@@ -1,11 +1,57 @@
-# Minimalistic Debian Live System Builder and Installer
+# Minimalistic Debian Live System Image Builder
 
-**If you're looking for a Debian live system and/or installer, go to [Debian.org](https://www.debian.org/).**
-This repository addresses _advanced_ Debian users with extensive knowledge of
-partitioning, filesystems, bootstrapping, system installation, essential Debian
-packages, APT, DPKG, fdisk, systemd, UEFI, etc.
-**Use of anything in this repository can cause irreversible data loss without prior warning!**
-**ABSOLUTELY NO WARRANTY AND/OR LIABILITY OF ANY KIND!**
+**If you're looking for a regular Debian live system, go to [Debian.org](https://www.debian.org/).**
+This repository addresses _advanced_ Debian users in need of a minimalistic
+and/or easily customizable live system image builder.
+
+## Features
+
+  * Minimalistic read-only live image (<250 MB image size without GUI)
+  * UEFI boot only (legacy BIOS not supported)
+  * Easily customizable (single shell script assembles live system)
+  * Boot medium unpluggable after boot (image copied into RAM)
+  * Retroactive configuration without rebuilding image (OverlayFS populated
+    from .tar file during early boot)
+  * Experimental [installer](https://github.com/carstenandrich/debian-minimal-installer/)
+    (non-interactive install of minimal Debian system in <3 minutes)
+  * Optional: [MemTest86](https://www.memtest86.com/) included in image (can
+    be selected at boot time)
+
+## Quick Start Instructions
+
+Clone repository including submodules:
+
+```sh
+git clone https://github.com/carstenandrich/debian-minimal-live.git
+cd debian-minimal-live
+git submodule update --init
+```
+
+Install required dependencies:
+
+```sh
+sudo apt-get install \
+	apt cdebootstrap coreutils dpkg fakeroot mount util-linux \
+	dosfstools fdisk squashfs-tools
+```
+
+Optional:
+
+  * To include [MemTest86](https://www.memtest86.com/) in generated image,
+    download `memtest86-usb.zip` into root directory of repository.
+  * Modify [`rootfs_chroot.sh`](./rootfs_chroot.sh) to adjust list of installed
+    packages.
+  * Change included files in [`rootfs-overlay.tar.d/`](./rootfs-overlay.tar.d/).
+
+Build image and write it onto bootable storage medium (e.g., USB drive):
+
+```sh
+sudo make
+sudo dd if=image_uefi.bin of=/dev/sdX bs=4K status=progress
+```
+
+
+# Usage and Implementation Details
 
 Development rationale is simplicity ([KISS](https://en.wikipedia.org/wiki/KISS_principle)),
 minimalism (no bloat) and the use of cutting-edge technology.
@@ -13,58 +59,12 @@ Both live and installed systems use systemd for everything (booting, network
 configuration, logging) and traditional alternatives (syslogd, cron, etc.) are
 not installed by default.
 
-
-## Live System Builder
-
-A collection of shell scripts to build an easily customizable Debian live image
-(both stable and unstable are supported) for deployment on (read-only)
-USB-/SD-storage.
 The live system relies on a compressed SquashFS read-only root file system
 combined with an OverlayFS for volatile run-time write access.
 The OverlayFS is initialized from a compressed .tar file during early boot (in
 initramfs), enabling retroactively customized replication of a single live image
 for deployment on multiple systems that require different configurations.
-
 Systemd-boot is used as boot loader, so only UEFI is supported.
-When manually downloaded, [MemTest86](https://www.memtest86.com/) will be
-included in the live image.
-
-See **Usage** for details on the process of building the live image.
-
-
-## Scripted Installer
-
-The live image contains an [customizable, scripted installer](rootfs-overlay.tar.d/root/debian-quick-install/)
-based on the live image builder.
-Feautures:
-
-  * Non-interactive network installation of a minimal Debian system within a few
-    minutes (<3 depending on the system performance and internet connection)
-  * Btrfs as root filesystem configured for snapshots
-  * Systemd-boot as minimalistic boot loader (usable since systemd package
-    version 251.2-3, which split systemd-boot off into separate package)
-
-For details see the [installer README.md](rootfs-overlay.tar.d/root/debian-quick-install/README.md),
-which is work-in-progress.
-
-
-
-# Installation
-
-No installation required. Simply clone this repository.
-The following Debian packages are required by the scripts:
-
-```sh
-apt-get install \
-	apt cdebootstrap coreutils dpkg fakeroot mount util-linux \
-	dosfstools fdisk squashfs-tools
-```
-
-
-
-# Usage
-
-**WARNING: READ AND UNDERSTAND THE SOURCE CODE BEFORE RUNNING ANYTHING!**
 
 The build process is implemented by multiple, compartmentalized shell scripts.
 A [Makefile](./Makefile) is used to orchestrate the build including dependency
@@ -79,8 +79,6 @@ The following targets are supported:
 `bootstrap`      | Bootstrap a minimal Debian system
 `rootfs`         | Build full root filesystem (depends on `bootstrap`)
 `image_uefi.bin` | Generate disk image for UEFI boot (depends on `rootfs`)
-
-Most steps of the build process require root permissions.
 
 
 ## 1. Bootstrap
@@ -132,7 +130,7 @@ Use `dd` to dump the disk image on any bootable storage medium (e.g., USB-stick
 or SD-card):
 
 ```sh
-dd if=image_uefi.bin of=/dev/sdX bs=4K status=progress
+sudo dd if=image_uefi.bin of=/dev/sdX bs=4K status=progress
 ```
 
 By default the disk image file is only marginally larger than the SquashFS.
