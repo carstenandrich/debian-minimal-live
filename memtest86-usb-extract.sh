@@ -1,4 +1,4 @@
-#!/bin/sh -eu
+#!/bin/sh -eux
 
 MEMTEST_ZIP="memtest86-usb.zip"
 MEMTEST_DIR="MemTest86"
@@ -43,5 +43,3 @@ mount -o ro ${LOOPDEV}p1 $TMPDIR/mnt
 
 # copy memtest
 cp -a $TMPDIR/mnt/EFI/BOOT/ $MEMTEST_DIR
-
-echo "Successfully extracted MemTest86."

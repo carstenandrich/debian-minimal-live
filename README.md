@@ -56,7 +56,7 @@ The following Debian packages are required by the scripts:
 
 ```sh
 apt-get install \
-	apt coreutils debootstrap dpkg fakeroot mount util-linux \
+	apt cdebootstrap coreutils dpkg fakeroot mount util-linux \
 	dosfstools fdisk squashfs-tools
 ```
 
@@ -112,7 +112,7 @@ list of installed packages and configure the system to suit your needs.
 [`image_uefi.sh`](./image_uefi.sh) generates a bootable, MBR partitioned disk
 image file (`image_uefi.bin`).
 The image contains a FAT32 UEFI system partition (ESP) with
-([systemd-boot](https://www.freedesktop.org/software/systemd/man/systemd-boot.html)
+[systemd-boot](https://www.freedesktop.org/software/systemd/man/systemd-boot.html)
 as UEFI boot loader.
 **Legacy BIOS boot is not supported!**
 
@@ -125,9 +125,8 @@ As the overlay is initialized during early boot (from initramfs), this will also
 affect the regular boot process performed by systemd.
 
 If you want [MemTest86](https://www.memtest86.com/) included in the disk image,
-download `memtest86-usb.zip` and run
-[`memtest86-usb-extract.sh`](./memtest86-usb-extract.sh) to extract the EFI
-binary before running `image_uefi.sh` (either manually or implicitly via make).
+download `memtest86-usb.zip` into this repository's root directory. It will be
+automatically extracted during the build process.
 
 Use `dd` to dump the disk image on any bootable storage medium (e.g., USB-stick
 or SD-card):
