@@ -1,0 +1,3 @@
+[submodule "rootfs-overlay.tar.d/root/debian-minimal-installer"]
+	path = rootfs-overlay.tar.d/root/debian-minimal-installer
+	url = ../debian-minimal-installer

@@ -1,3 +1,0 @@
-/etc/initramfs/post-update.d/update-systemd-boot
-/etc/kernel/postinst.d/update-systemd-boot
-/etc/kernel/postrm.d/update-systemd-boot
