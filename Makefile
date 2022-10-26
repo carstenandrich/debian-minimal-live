@@ -31,5 +31,5 @@ rootfs: bootstrap rootfs-overlay.deb rootfs.sh rootfs_chroot.sh
 
 # third step: generate UEFI disk image from rootfs
 # optionally depends on MemTest86 if memtest86-usb.zip exists
-image_uefi.bin: image_uefi.sh rootfs rootfs-overlay.tar.d $(if [-f memtest86-usb.zip], MemTest86)
+image_uefi.bin: image_uefi.sh rootfs rootfs-overlay.tar.d $(if $(wildcard ./memtest86-usb.zip), MemTest86)
 	./image_uefi.sh
