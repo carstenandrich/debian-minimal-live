@@ -65,13 +65,13 @@ cat > image_uefi.mnt/loader/entries/debian.conf <<-EOF
 	title   Debian Linux $KERNEL_VERSION (copy to ramdisk, boot medium unpluggable)
 	linux   /vmlinuz-$KERNEL_VERSION
 	initrd  /initrd.img-$KERNEL_VERSION
-	options root=UUID=$UUID ro rootfs-overlay-size=256m rootfs-overlay-copy=1
+	options root=UUID=$UUID ro rootfs-overlay=2
 EOF
 cat > image_uefi.mnt/loader/entries/debian-nocopy.conf <<-EOF
 	title   Debian Linux $KERNEL_VERSION (load from boot medium)
 	linux   /vmlinuz-$KERNEL_VERSION
 	initrd  /initrd.img-$KERNEL_VERSION
-	options root=UUID=$UUID ro rootfs-overlay-size=256m rootfs-overlay-copy=0
+	options root=UUID=$UUID ro rootfs-overlay=1
 EOF
 # copy MemTest86 if available
 if [ -f "MemTest86/BOOTX64.efi" ] ; then

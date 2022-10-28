@@ -12,7 +12,7 @@ clean:
 
 # dependency: build rootfs-overlay.deb from source files
 rootfs-overlay.deb: rootfs-overlay.deb.d
-	fakeroot dpkg-deb -b rootfs-overlay.deb.d rootfs-overlay.deb
+	dpkg-deb -b rootfs-overlay.deb.d rootfs-overlay.deb
 
 # dependency: extract MemTest86 EFI binaries from memtest86-usb.zip
 MemTest86: memtest86-usb.zip
