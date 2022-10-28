@@ -13,7 +13,8 @@ if [ -e "$MEMTEST_DIR" ] ; then
 	exit 1
 fi
 
-# register trap to reliably cleanup after ourselves
+# register function for reliable cleanup when script exits (both regular exit
+# and premature termination due to errors, signals, etc.)
 cleanup()
 {
 	if mountpoint -q $TMPDIR/mnt ; then
@@ -31,7 +32,7 @@ cleanup()
 trap "cleanup" EXIT INT
 
 # create temporary directory
-TMPDIR=$(mktemp --directory --tmpdir memtest-dl.XXXXXXXXXX)
+TMPDIR=$(mktemp --directory --tmpdir memtest86-usb-extract.XXXXXXXXXX)
 
 # extract memtest zip archive
 unzip -q $MEMTEST_ZIP -d $TMPDIR
@@ -41,5 +42,7 @@ mkdir $TMPDIR/mnt
 LOOPDEV=$(losetup --find --partscan --read-only --show $TMPDIR/memtest86-usb.img)
 mount -o ro ${LOOPDEV}p1 $TMPDIR/mnt
 
-# copy memtest
+# copy memtest EFI binaries
 cp -a $TMPDIR/mnt/EFI/BOOT/ $MEMTEST_DIR
+
+# cleanup() will be called by EXIT trap

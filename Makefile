@@ -1,3 +1,6 @@
+# select Debian suite (supports bullseye, bookwork, and sid)
+DEBIAN_SUITE=sid
+
 # default target: build disk image
 .PHONY: default
 default: image_uefi.bin
@@ -23,11 +26,12 @@ MemTest86: memtest86-usb.zip
 #dpkg --root bootstrap.d --install /usr/share/cdebootstrap/cdebootstrap-helper-rc.d.deb
 bootstrap:
 	rm -rf bootstrap
-	cdebootstrap --flavour=minimal --include=usrmerge,whiptail sid bootstrap http://deb.debian.org/debian
+	cdebootstrap --flavour=minimal --include=usrmerge,whiptail $(DEBIAN_SUITE) bootstrap http://deb.debian.org/debian
+	rm -rf bootstrap/run/*
 
 # second step: build rootfs from bootstrapped system
 rootfs: bootstrap rootfs-overlay.deb rootfs.sh rootfs_chroot.sh
-	./rootfs.sh
+	DEBIAN_SUITE=$(DEBIAN_SUITE) ./rootfs.sh
 
 # third step: generate UEFI disk image from rootfs
 # optionally depends on MemTest86 if memtest86-usb.zip exists

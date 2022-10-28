@@ -6,7 +6,8 @@ and/or easily customizable live system image builder.
 
 ## Features
 
-  * Minimalistic read-only live image (<250 MB image size without GUI)
+  * Builds minimalistic read-only live image (<300 MB image size without GUI)
+  * Supports current Debian stable (Bullseye) and unstable (Sid)
   * UEFI boot only (legacy BIOS not supported)
   * Easily customizable (single shell script assembles live system)
   * Boot medium unpluggable after boot (image copied into RAM)
@@ -31,8 +32,8 @@ Install required dependencies:
 
 ```sh
 sudo apt-get install \
-	apt cdebootstrap coreutils dpkg fakeroot mount util-linux \
-	dosfstools fdisk squashfs-tools
+	apt bubblewrap cdebootstrap coreutils dosfstools dpkg fdisk mount \
+	squashfs-tools util-linux
 ```
 
 Optional:
@@ -49,6 +50,9 @@ Build image and write it onto bootable storage medium (e.g., USB drive):
 sudo make
 sudo dd if=image_uefi.bin of=/dev/sdX bs=4K status=progress
 ```
+
+Note that running the build process on a tmpfs is likely to significantly
+accelerate the build process compared to a disk-backed filesystem.
 
 
 # Usage and Implementation Details
