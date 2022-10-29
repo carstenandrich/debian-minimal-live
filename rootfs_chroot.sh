@@ -8,7 +8,8 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update
 
 # setup C locale as default
-apt-get --assume-yes install locales
+apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
+	locales
 update-locale LANG=C.UTF-8
 
 # systemd-boot packaged separately since Debian Bookworm/Sid (systemd >= 251.2-3)
@@ -35,7 +36,7 @@ mkdir -p /run/systemd/resolve
 cat /etc/resolv.conf > /run/systemd/resolve/resolv.conf
 cat /etc/resolv.conf > /run/systemd/resolve/stub-resolv.conf
 
-# install subset of important packages plus some personal favorites
+# install all packages except kernel (avoids multiple initramfs rebuilds)
 apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
 	bsdmainutils cpio dbus dmidecode init initramfs-tools iproute2 \
 	kmod mount nano netbase sensible-utils \
@@ -51,35 +52,23 @@ apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef
 systemctl enable systemd-networkd.service
 
 # enable systemd-resolved service and use its resolv.conf on Bullseye
+# (happens via systemd-resolved's postinst script on Bookworm/Sid)
 # TODO: remove after stable release of Bookworm
 if [ $DEBIAN_SUITE = "bullseye" ] ; then
 	systemctl enable systemd-resolved.service
 	ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 fi
 
-# configure keyboard layout
-cat > /etc/default/keyboard <<-EOF
-	# KEYBOARD CONFIGURATION FILE
-
-	# Consult the keyboard(5) manual page.
-
-	XKBMODEL="pc105"
-	XKBLAYOUT="de"
-	XKBVARIANT=""
-	XKBOPTIONS=""
-
-	BACKSPACE="guess"
-EOF
-
 # disable resuming (emits warning during initramfs generation and may cause
 # boot delay when erroneously waiting for swap partition)
 # https://manpages.debian.org/bullseye/initramfs-tools-core/initramfs-tools.7.en.html#resume
 echo "RESUME=none" > /etc/initramfs-tools/conf.d/resume
 
-# use local keymap
+# configure initramfs generation before installing kernel
+# (use local keymap in initramfs)
 sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
 
-# install kernel last, so initramfs will only be built once
+# install kernel
 apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
 	linux-image-amd64
 

@@ -40,16 +40,16 @@ bwrap \
 	--setenv USER "$USER" \
 	\
 	--bind rootfs/ / \
-	--ro-bind rootfs_chroot.sh /rootfs_chroot.sh \
 	--dev /dev \
 	--proc /proc \
 	--tmpfs /run \
 	--ro-bind /sys /sys \
 	--perms 1777 --tmpfs /tmp \
+	--perms 500 --file 3 /tmp/rootfs_chroot.sh \
 	--bind /var/cache/apt/archives /var/cache/apt/archives \
 	\
 	--unshare-pid --die-with-parent \
-	/bin/sh -eux /rootfs_chroot.sh
+	/tmp/rootfs_chroot.sh 3<rootfs_chroot.sh
 
 # remove cdebootstrap helper that inhibits service invocation
 dpkg --root=rootfs --purge cdebootstrap-helper-rc.d
