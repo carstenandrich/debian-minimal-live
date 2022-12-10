@@ -1,7 +1,3 @@
-# MemTest86 is non-redistributable (readme.txt reads: "all rights reserved")
-/MemTest86/
-/memtest86-usb.zip
-
 # SSH server keys and all user-specific files are confidential
 **/etc/ssh/ssh_host_*_key*
 **/root/.ssh/

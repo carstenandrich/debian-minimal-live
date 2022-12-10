@@ -55,8 +55,9 @@ KERNEL=$(readlink rootfs/vmlinuz)
 KERNEL_VERSION=${KERNEL#boot/vmlinuz-}
 
 # create systemd-boot configuration
-mkdir -p image_uefi.mnt/EFI/BOOT/ image_uefi.mnt/loader/entries/
+mkdir -p image_uefi.mnt/EFI/BOOT/ image_uefi.mnt/loader/entries/ image_uefi.mnt/EFI/memtest86+/
 cp rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi image_uefi.mnt/EFI/BOOT/BOOTX64.EFI
+cp memtest86plus/build64/memtest.efi image_uefi.mnt/EFI/memtest86+/memtest86+.efi
 cat > image_uefi.mnt/loader/loader.conf <<-EOF
 	default  debian.conf
 	timeout  3
@@ -73,14 +74,10 @@ cat > image_uefi.mnt/loader/entries/debian-nocopy.conf <<-EOF
 	initrd  /initrd.img-$KERNEL_VERSION
 	options root=UUID=$UUID ro rootfs-overlay=1
 EOF
-# copy MemTest86 if available
-if [ -f "MemTest86/BOOTX64.efi" ] ; then
-	cp -r MemTest86/ image_uefi.mnt/EFI/
-	cat > image_uefi.mnt/loader/entries/memtest.conf <<-EOF
-		title   MemTest86
-		efi     /EFI/MemTest86/BOOTX64.efi
-	EOF
-fi
+cat > image_uefi.mnt/loader/entries/memtest.conf <<-EOF
+	title   Memtest86+
+	efi     /EFI/memtest86+/memtest86+.efi
+EOF
 
 # copy kernel, initramfs, and squashfs on boot partition
 cp rootfs/boot/initrd.img-$KERNEL_VERSION rootfs/boot/vmlinuz-$KERNEL_VERSION image_uefi.mnt/

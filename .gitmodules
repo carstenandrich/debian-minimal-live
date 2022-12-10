@@ -1,3 +1,6 @@
 [submodule "rootfs-overlay.tar.d/root/debian-minimal-installer"]
 	path = rootfs-overlay.tar.d/root/debian-minimal-installer
 	url = ../debian-minimal-installer
+[submodule "memtest86plus"]
+	path = memtest86plus
+	url = https://github.com/memtest86plus/memtest86plus.git

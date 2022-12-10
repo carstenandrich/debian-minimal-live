@@ -7,7 +7,7 @@ and/or easily customizable live system image builder.
 ## Features
 
   * Builds minimalistic read-only live image (<300 MB image size without GUI)
-  * Supports current Debian stable (Bullseye) and unstable (Sid)
+  * Supports current Debian stable (Bullseye) and unstable (Sid) on x86_64
   * UEFI boot only (legacy BIOS not supported)
   * Easily customizable (single shell script assembles live system)
   * Boot medium unpluggable after boot (image copied into RAM)
@@ -15,8 +15,8 @@ and/or easily customizable live system image builder.
     from .tar file during early boot)
   * Experimental [installer](https://github.com/carstenandrich/debian-minimal-installer/)
     (non-interactive install of minimal Debian system in <3 minutes)
-  * Optional: [MemTest86](https://www.memtest86.com/) included in image (can
-    be selected at boot time)
+  * [Memtest86+](https://memtest.org/) compiled and included in image (can be
+    selected at boot time)
 
 ## Quick Start Instructions
 
@@ -32,14 +32,12 @@ Install required dependencies:
 
 ```sh
 sudo apt-get install \
-	apt bubblewrap cdebootstrap coreutils dosfstools dpkg fdisk mount \
-	squashfs-tools util-linux
+	apt bubblewrap build-essential cdebootstrap coreutils dosfstools dpkg \
+	fdisk mount squashfs-tools util-linux
 ```
 
 Optional:
 
-  * To include [MemTest86](https://www.memtest86.com/) in generated image,
-    download `memtest86-usb.zip` into root directory of repository.
   * Modify [`rootfs_chroot.sh`](./rootfs_chroot.sh) to adjust list of installed
     packages.
   * Change included files in [`rootfs-overlay.tar.d/`](./rootfs-overlay.tar.d/).
@@ -125,10 +123,6 @@ files are copied onto the ESP. `rootfs-overlay.tar.gz` can be easily replaced
 retroactively to change the live system without re-packing the SquashFS.
 As the overlay is initialized during early boot (from initramfs), this will also
 affect the regular boot process performed by systemd.
-
-If you want [MemTest86](https://www.memtest86.com/) included in the disk image,
-download `memtest86-usb.zip` into this repository's root directory. It will be
-automatically extracted during the build process.
 
 Use `dd` to dump the disk image on any bootable storage medium (e.g., USB-stick
 or SD-card):
