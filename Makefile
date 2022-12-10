@@ -26,7 +26,14 @@ MemTest86: memtest86-usb.zip
 #dpkg --root bootstrap.d --install /usr/share/cdebootstrap/cdebootstrap-helper-rc.d.deb
 bootstrap:
 	rm -rf bootstrap
+ifneq ($(DEBIAN_SUITE),bullseye)
+	cdebootstrap --flavour=minimal --include=usrmerge,usr-is-merged,whiptail $(DEBIAN_SUITE) bootstrap http://deb.debian.org/debian
+	# remove usrmerge and its dependencies after /usr has been merged
+	# FIXME: will break on perl major version upgrade
+	dpkg --root=bootstrap --purge usrmerge perl perl-modules-5.36 libfile-find-rule-perl libnumber-compare-perl libperl5.36 libtext-glob-perl
+else
 	cdebootstrap --flavour=minimal --include=usrmerge,whiptail $(DEBIAN_SUITE) bootstrap http://deb.debian.org/debian
+endif
 	rm -rf bootstrap/run/*
 
 # second step: build rootfs from bootstrapped system

@@ -11,11 +11,6 @@ export DEBIAN_FRONTEND=noninteractive
 # fetch repository index
 apt-get update
 
-# setup C locale as default
-apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
-	locales
-update-locale LANG=C.UTF-8
-
 # systemd-boot packaged separately since Debian Bookworm/Sid (systemd >= 251.2-3)
 # https://salsa.debian.org/systemd-team/systemd/-/blob/debian/251.2-3/debian/changelog
 # TODO: remove after stable release of Bookworm
