@@ -1,5 +1,9 @@
 #!/bin/sh -eux
 
+# /tmp is tmpfs created by bwrap, but bwrap uses 0755 mode
+# TODO: use bwrap --perms 1777 --tmpfs /tmp once bwrap 0.5 is widely available
+chmod 1777 /tmp
+
 # make apt-get not ask any questions
 # https://manpages.debian.org/unstable/debconf-doc/debconf.7.en.html#Frontends
 export DEBIAN_FRONTEND=noninteractive
