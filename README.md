@@ -165,4 +165,6 @@ qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 102
 ```
 
 After installation, simply reboot the VM and it should boot from the install
-disk and not the live image.
+disk and not the live image. If not, remove the `-drive file=image_uefi.bin`
+parameter to enforce booting from the installation disk. This step is required
+if QEMU/OVMF do not retain NVRAM contents between boots.
