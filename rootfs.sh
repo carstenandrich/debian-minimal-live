@@ -5,11 +5,11 @@ rm -rf --one-file-system rootfs
 cp -a --reflink=auto bootstrap rootfs
 
 # configure apt sources
-echo "deb http://deb.debian.org/debian $DEBIAN_SUITE main contrib non-free" > rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian $DEBIAN_SUITE main contrib non-free non-free-firmware" > rootfs/etc/apt/sources.list
 if [ $DEBIAN_SUITE != "sid" ] ; then
-	echo "deb http://security.debian.org/debian-security $DEBIAN_SUITE-security main contrib non-free" >> rootfs/etc/apt/sources.list
-	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-updates main contrib non-free" >> rootfs/etc/apt/sources.list
-	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-backports main contrib non-free" >> rootfs/etc/apt/sources.list
+	echo "deb http://security.debian.org/debian-security $DEBIAN_SUITE-security main contrib non-free non-free-firmware" >> rootfs/etc/apt/sources.list
+	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-updates main contrib non-free non-free-firmware" >> rootfs/etc/apt/sources.list
+	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-backports main contrib non-free non-free-firmware" >> rootfs/etc/apt/sources.list
 fi
 
 # configure hostname
