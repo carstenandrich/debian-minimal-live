@@ -55,5 +55,11 @@ apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef
 
 # create unprivileged user and set usernames as password
 useradd --create-home -d /home/user -s /bin/bash -G audio,dialout,input,sudo,video user
-echo -n "root" | passwd -s root
-echo -n "user" | passwd -s user
+# TODO: remove fallback when deprecating Bookworm
+if [ $DEBIAN_SUITE = "bookworm" ] ; then
+	usermod --password '$1$$oCLuEVgI1iAqOA8pwkzAg1' root
+	usermod --password '$1$$ex9cQFo.PV11eSLXJFZuj.' user
+else
+	echo -n "root" | passwd -s root
+	echo -n "user" | passwd -s user
+fi
