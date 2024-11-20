@@ -3,3 +3,4 @@ Name=e*
 
 [Network]
 DHCP=ipv4
+LinkLocalAddressing=yes
