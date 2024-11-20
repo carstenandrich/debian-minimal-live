@@ -24,7 +24,7 @@ cat /etc/resolv.conf >/run/systemd/resolve/stub-resolv.conf
 # install all packages except kernel (avoids multiple initramfs rebuilds)
 apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
 	bsdmainutils cpio dbus dmidecode init initramfs-tools iproute2 \
-	kmod mount nano netbase sensible-utils \
+	kmod login mount nano netbase sensible-utils \
 	systemd systemd-boot systemd-resolved systemd-sysv systemd-timesyncd \
 	tzdata udev vim-tiny zstd \
 	\
