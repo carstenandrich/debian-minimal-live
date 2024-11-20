@@ -58,23 +58,23 @@ KERNEL_VERSION=${KERNEL#boot/vmlinuz-}
 mkdir -p image_uefi.mnt/EFI/BOOT/ image_uefi.mnt/loader/entries/ image_uefi.mnt/EFI/memtest86+/
 cp rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi image_uefi.mnt/EFI/BOOT/BOOTX64.EFI
 cp memtest86plus/build64/memtest.efi image_uefi.mnt/EFI/memtest86+/memtest86+.efi
-cat > image_uefi.mnt/loader/loader.conf <<-EOF
+cat >image_uefi.mnt/loader/loader.conf <<-EOF
 	default  debian.conf
 	timeout  3
 EOF
-cat > image_uefi.mnt/loader/entries/debian.conf <<-EOF
+cat >image_uefi.mnt/loader/entries/debian.conf <<-EOF
 	title   Debian Linux $KERNEL_VERSION (copy to ramdisk, boot medium unpluggable)
 	linux   /vmlinuz-$KERNEL_VERSION
 	initrd  /initrd.img-$KERNEL_VERSION
 	options root=UUID=$UUID ro rootfs-overlay=2
 EOF
-cat > image_uefi.mnt/loader/entries/debian-nocopy.conf <<-EOF
+cat >image_uefi.mnt/loader/entries/debian-nocopy.conf <<-EOF
 	title   Debian Linux $KERNEL_VERSION (load from boot medium)
 	linux   /vmlinuz-$KERNEL_VERSION
 	initrd  /initrd.img-$KERNEL_VERSION
 	options root=UUID=$UUID ro rootfs-overlay=1
 EOF
-cat > image_uefi.mnt/loader/entries/memtest.conf <<-EOF
+cat >image_uefi.mnt/loader/entries/memtest.conf <<-EOF
 	title   Memtest86+
 	efi     /EFI/memtest86+/memtest86+.efi
 EOF
@@ -87,7 +87,7 @@ rm rootfs.squashfs
 # create overlay tarball with appropriate file attributes
 tar -cf rootfs-overlay.tar --owner=root:0    --group=root:0    -C rootfs-overlay.tar.d/ etc/ root/
 tar -rf rootfs-overlay.tar --owner=user:1000 --group=user:1000 -C rootfs-overlay.tar.d/ home/user/
-gzip -c rootfs-overlay.tar > image_uefi.mnt/rootfs-overlay.tar.gz
+gzip -c rootfs-overlay.tar >image_uefi.mnt/rootfs-overlay.tar.gz
 rm rootfs-overlay.tar
 
 # cleanup() will be called by EXIT trap

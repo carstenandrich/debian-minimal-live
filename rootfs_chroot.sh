@@ -18,8 +18,8 @@ apt-get update
 # contents of /etc/resolv.conf (expected to be a usable resolv.conf provided
 # by the host)
 mkdir -p /run/systemd/resolve
-cat /etc/resolv.conf > /run/systemd/resolve/resolv.conf
-cat /etc/resolv.conf > /run/systemd/resolve/stub-resolv.conf
+cat /etc/resolv.conf >/run/systemd/resolve/resolv.conf
+cat /etc/resolv.conf >/run/systemd/resolve/stub-resolv.conf
 
 # install all packages except kernel (avoids multiple initramfs rebuilds)
 apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
@@ -34,12 +34,16 @@ apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef
 	iputils-ping iputils-tracepath netcat-openbsd openssh-client openssh-server
 
 # enable systemd services not enabled by default
-systemctl enable systemd-networkd.service
+if [ -f /usr/lib/systemd/system/systemd-networkd.service ] ; then
+	systemctl enable systemd-networkd.service
+fi
 
 # disable resuming (emits warning during initramfs generation and may cause
 # boot delay when erroneously waiting for swap partition)
 # https://manpages.debian.org/unstable/initramfs-tools-core/initramfs-tools.7.en.html#resume
-echo "RESUME=none" > /etc/initramfs-tools/conf.d/resume
+if [ -d /etc/initramfs-tools/conf.d ] ; then
+	echo "RESUME=none" >/etc/initramfs-tools/conf.d/resume
+fi
 
 # configure initramfs generation before installing kernel
 # (use local keymap in initramfs)
@@ -49,7 +53,7 @@ sed -i 's/^KEYMAP=n/KEYMAP=y/' /etc/initramfs-tools/initramfs.conf
 apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install \
 	linux-image-amd64
 
-# create unprivileged user and set usernames as password (generate via `openssl passwd -1 -salt ""`)
+# create unprivileged user and set usernames as password
 useradd --create-home -d /home/user -s /bin/bash -G audio,dialout,input,sudo,video user
-usermod --password '$1$$oCLuEVgI1iAqOA8pwkzAg1' root
-usermod --password '$1$$ex9cQFo.PV11eSLXJFZuj.' user
+echo -n "root" | passwd -s root
+echo -n "user" | passwd -s user

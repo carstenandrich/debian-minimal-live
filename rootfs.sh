@@ -5,22 +5,22 @@ rm -rf --one-file-system rootfs
 cp -a --reflink=auto bootstrap rootfs
 
 # configure apt sources
-echo "deb http://deb.debian.org/debian $DEBIAN_SUITE main contrib non-free non-free-firmware" > rootfs/etc/apt/sources.list
+echo "deb http://deb.debian.org/debian $DEBIAN_SUITE main contrib non-free non-free-firmware" >rootfs/etc/apt/sources.list
 if [ $DEBIAN_SUITE != "sid" ] ; then
-	echo "deb http://security.debian.org/debian-security $DEBIAN_SUITE-security main contrib non-free non-free-firmware" >> rootfs/etc/apt/sources.list
-	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-updates main contrib non-free non-free-firmware" >> rootfs/etc/apt/sources.list
-	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-backports main contrib non-free non-free-firmware" >> rootfs/etc/apt/sources.list
+	echo "deb http://security.debian.org/debian-security $DEBIAN_SUITE-security main contrib non-free non-free-firmware" >>rootfs/etc/apt/sources.list
+	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-updates main contrib non-free non-free-firmware" >>rootfs/etc/apt/sources.list
+	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-backports main contrib non-free non-free-firmware" >>rootfs/etc/apt/sources.list
 fi
 
 # configure hostname
-echo "live" > rootfs/etc/hostname
-cat > rootfs/etc/hosts <<-EOF
+echo "live" >rootfs/etc/hostname
+cat >rootfs/etc/hosts <<-EOF
 	127.0.0.1 localhost
 	127.0.1.1 live
 EOF
 
 # update resolv.conf (may have changed since bootstrapping)
-cat /etc/resolv.conf > rootfs/etc/resolv.conf
+cat /etc/resolv.conf >rootfs/etc/resolv.conf
 
 # install rootfs-overlay package (overlayfs setup via initramfs scripts)
 dpkg --root=rootfs --install rootfs-overlay.deb
