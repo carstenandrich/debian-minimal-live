@@ -25,10 +25,14 @@ memtest86plus/build64/memtest.efi: memtest86plus
 bootstrap:
 	rm -rf bootstrap
 	cdebootstrap --flavour=minimal --include=usrmerge,usr-is-merged,whiptail $(DEBIAN_SUITE) bootstrap http://deb.debian.org/debian
-	# remove usrmerge and its dependencies after /usr has been merged
-	# FIXME: will break on perl major version upgrade
-	dpkg --root=bootstrap --purge usrmerge perl perl-modules-5.36 libfile-find-rule-perl libnumber-compare-perl libperl5.36 libtext-glob-perl
 	rm -rf bootstrap/run/*
+	# remove usrmerge and its dependencies after /usr has been merged
+ifeq ($(DEBIAN_SUITE),bookworm)
+	dpkg --root=bootstrap --purge usrmerge perl perl-modules-5.36 libfile-find-rule-perl libnumber-compare-perl libperl5.36 libtext-glob-perl
+else
+	# FIXME: will break on perl major version upgrade
+	dpkg --root=bootstrap --purge usrmerge perl perl-modules-5.40 libfile-find-rule-perl libnumber-compare-perl libperl5.40 libtext-glob-perl
+endif
 
 # second step: build rootfs from bootstrapped system
 rootfs: bootstrap rootfs-overlay.deb rootfs.sh rootfs_chroot.sh
