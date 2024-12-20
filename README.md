@@ -152,7 +152,7 @@ Works without root permissions if the image is writable:
 
 ```sh
 sudo chmod 666 image_uefi.bin
-qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga std -drive file=image_uefi.bin,index=0,media=disk,format=raw
+qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci -drive file=image_uefi.bin,if=virtio,aio=io_uring,index=0,media=disk,format=raw
 ```
 
 To test the scripted installer, you can create an additional disk backed by a
@@ -161,7 +161,7 @@ sparse file:
 ```sh
 sudo chmod 666 image_uefi.bin
 dd if=/dev/null bs=1G seek=8 of=/tmp/sdb.bin
-qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga std -drive file=image_uefi.bin,index=0,media=disk,format=raw -drive file=/tmp/sdb.bin,index=1,media=disk,format=raw
+qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci -drive file=image_uefi.bin,if=virtio,aio=io_uring,index=0,media=disk,format=raw -drive file=/tmp/sdb.bin,if=virtio,aio=io_uring,index=1,media=disk,format=raw
 ```
 
 After installation, simply reboot the VM and it should boot from the install
