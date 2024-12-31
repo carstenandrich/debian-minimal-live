@@ -22,8 +22,8 @@ EOF
 # update resolv.conf (may have changed since bootstrapping)
 cat /etc/resolv.conf >rootfs/etc/resolv.conf
 
-# install rootfs-overlay package (overlayfs setup via initramfs scripts)
-dpkg --root=rootfs --install rootfs-overlay.deb
+# install linux-initramfs-tool-noop package (inhibits initramfs generation)
+dpkg --root=rootfs --install linux-initramfs-tool-noop.deb
 
 # call chroot build script via env and bubblewrap:
 #   * clears environment variables (prevents locale issues)

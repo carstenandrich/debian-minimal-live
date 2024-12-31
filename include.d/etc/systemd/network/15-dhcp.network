@@ -1,5 +1,6 @@
 [Match]
-Name=e*
+Name=*
+Type=ether wlan
 
 [Network]
 DHCP=ipv4

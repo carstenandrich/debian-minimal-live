@@ -1,19 +1,23 @@
-# Minimalistic Debian Live System Image Builder
+# Minimal Debian Live System as Unified Kernel Image (UKI)
 
-**If you're looking for a regular Debian live system, go to [Debian.org](https://www.debian.org/).**
-This repository addresses _advanced_ Debian users in need of a minimalistic
-and/or easily customizable live system image builder.
+**DISCLAIMER: If you're looking for a conventional Debian live system, go to [Debian.org](https://www.debian.org/).**
+This repository builds a minimal Debian live system packed as a single file, self-contained [Unified Kernel Image (UKI)](https://uapi-group.org/specifications/specs/unified_kernel_image/).
+The UKI contains a very large initrd, which comprises the entire root file system (rootfs) instead of only the components required for early boot.
+This approach is **experimental** and not guaranteed to work with all UEFI implementations (tested with UEFI 2.40 (American Megatrends 5.11)).
 
 ## Features
 
-  * Builds minimalistic read-only live image (<300 MB image size without GUI)
+  * Minimal live system (<200 MB size in default configuration)
+    * Suitable as a self-contained recovery system on a 512M EFI system partition (ESP)
+  * Pre-configured Unified Kernel Image (UKI) compliant to [Boot Loader Specification](https://uapi-group.org/specifications/specs/boot_loader_specification/)
+    * No configuration required (i.e., no need to set root device on kernel cmdline, e.g., `root=UUID=DEAD-BEEF`)
+    * Automatic detection with [supported boot loaders](https://wiki.archlinux.org/title/Unified_kernel_image#Booting)
+    * Alternatively boots without boot loader when `EFI/BOOT/BOOTX64.EFI`
   * Supports current Debian stable (Bookworm) and unstable (Sid) on x86_64
-  * UEFI boot only (legacy BIOS not supported)
-  * Easily customizable (single shell script assembles live system)
-  * Boot medium unpluggable after boot (image copied into RAM)
-  * Retroactive configuration without rebuilding image (OverlayFS populated
-    from .tar file during early boot)
-  * Experimental [installer](https://github.com/carstenandrich/debian-minimal-installer/)
+  * UEFI boot only (legacy BIOS not supported!)
+  * Easily customizable ([single shell script](./rootfs_chroot.sh) assembles live system)
+  * Boot medium unpluggable after boot (initrd automatically copied into RAM)
+  * Experimental [Debian installer](https://github.com/carstenandrich/debian-minimal-installer/)
     (non-interactive install of minimal Debian system in <3 minutes)
   * [Memtest86+](https://memtest.org/) compiled and included in image (can be
     selected at boot time)
@@ -23,9 +27,7 @@ and/or easily customizable live system image builder.
 Clone repository including submodules:
 
 ```sh
-git clone https://github.com/carstenandrich/debian-minimal-live.git
-cd debian-minimal-live
-git submodule update --init
+git clone --recurse-submodules https://github.com/carstenandrich/debian-minimal-live.git
 ```
 
 Install required dependencies:
@@ -33,20 +35,22 @@ Install required dependencies:
 ```sh
 sudo apt-get install \
 	apt bubblewrap build-essential cdebootstrap coreutils dosfstools dpkg \
-	fdisk mount squashfs-tools util-linux
+	fdisk mount systemd-ukify util-linux
 ```
 
 Optional:
 
   * Modify [`rootfs_chroot.sh`](./rootfs_chroot.sh) to adjust list of installed
     packages.
-  * Change included files in [`rootfs-overlay.tar.d/`](./rootfs-overlay.tar.d/).
+  * Change included files in [`include.d/`](./include.d/).
 
-Build image and write it onto bootable storage medium (e.g., USB drive):
+Build UKI and write it onto a bootable FAT32 partition (e.g., ESP or USB drive):
 
 ```sh
 sudo make
-sudo dd if=image_uefi.bin of=/dev/sdX bs=4K status=progress
+# Examples illustrating possible cp invocations. Adjust to your requirements! 
+#cp -n uki.efi /boot/efi/EFI/Linux/debian-recovery-uki.efi
+#cp -n uki.efi /media/usb_drive/EFI/BOOT/BOOTX64.EFI
 ```
 
 Note that running the build process on a tmpfs is likely to significantly
@@ -74,13 +78,13 @@ tracking for partial rebuilds after modifying build scripts.
 
 The following targets are supported:
 
-**Target**       | **Description**
----------------- | ---------------
-`default`        | `image_uefi.bin`
-`clean`          | Delete all build artifacts
-`bootstrap`      | Bootstrap a minimal Debian system
-`rootfs`         | Build full root filesystem (depends on `bootstrap`)
-`image_uefi.bin` | Generate disk image for UEFI boot (depends on `rootfs`)
+**Target**  | **Description**
+----------- | ---------------
+`default`   | `uki.efi`
+`clean`     | Delete all build artifacts
+`bootstrap` | Bootstrap a minimal Debian system
+`rootfs`    | Build full root filesystem (depends on `bootstrap`)
+`uki.efi`   | Generate unified kernel image (depends on `rootfs`)
 
 
 ## 1. Bootstrap
@@ -107,33 +111,9 @@ chroot into the `rootfs/` directory. Modify `rootfs_chroot.sh` to customize the
 list of installed packages and configure the system to suit your needs.
 
 
-## 3. Generate UEFI Disk Image
+## 3. Generate UKI
 
-[`image_uefi.sh`](./image_uefi.sh) generates a bootable, MBR partitioned disk
-image file (`image_uefi.bin`).
-The image contains a FAT32 UEFI system partition (ESP) with
-[systemd-boot](https://www.freedesktop.org/software/systemd/man/systemd-boot.html)
-as UEFI boot loader.
-**Legacy BIOS boot is not supported!**
-
-The previously built root filesystem in `rootfs/` is packed into a SquashFS
-image (`rootfs.squashfs`) and the initial contents of the OverlayFS are packed
-from the directory `rootfs-overlay.tar.d/` into `rootfs-overlay.tar.gz`. Both
-files are copied onto the ESP. `rootfs-overlay.tar.gz` can be easily replaced
-retroactively to change the live system without re-packing the SquashFS.
-As the overlay is initialized during early boot (from initramfs), this will also
-affect the regular boot process performed by systemd.
-
-Use `dd` to dump the disk image on any bootable storage medium (e.g., USB-stick
-or SD-card):
-
-```sh
-sudo dd if=image_uefi.bin of=/dev/sdX bs=4K status=progress
-```
-
-By default the disk image file is only marginally larger than the SquashFS.
-You can grow the partition after dumping it on a storage medium via `fdisk` and
-[`fatresize`](https://manpages.debian.org/stable/fatresize/fatresize.1.en.html).
+**TODO**
 
 
 ## 4. Testing
@@ -144,27 +124,41 @@ QEMU in combination with OVMF (UEFI firmware for VMs).
 First install QEMU and OVMF:
 
 ```sh
-apt-get install qemu-system-x86 ovmf
+sudo apt-get install qemu-system-x86 ovmf
 ```
 
-Then boot the UEFI disk image via QEMU.
-Works without root permissions if the image is writable:
+Then boot the UKI EFI file via QEMU:
 
 ```sh
-sudo chmod 666 image_uefi.bin
-qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci -drive file=image_uefi.bin,if=virtio,aio=io_uring,index=0,media=disk,format=raw
+qemu-system-x86_64 -nodefaults -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd \
+	-m 1536 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci \
+	-kernel uki.efi
 ```
 
-To test the scripted installer, you can create an additional disk backed by a
-sparse file:
+### Testing the Experimental Installer
+
+To test the scripted installer, you can create a drive backed by a sparse file:
 
 ```sh
-sudo chmod 666 image_uefi.bin
-dd if=/dev/null bs=1G seek=8 of=/tmp/sdb.bin
-qemu-system-x86_64 -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd -m 1024 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci -drive file=image_uefi.bin,if=virtio,aio=io_uring,index=0,media=disk,format=raw -drive file=/tmp/sdb.bin,if=virtio,aio=io_uring,index=1,media=disk,format=raw
+dd if=/dev/null bs=1G seek=8 of=/tmp/sda.bin
+qemu-system-x86_64 -nodefaults -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd \
+	-m 2048 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci \
+	-kernel uki.efi \
+	-drive file=/tmp/sda.bin,if=virtio,aio=io_uring,index=1,media=disk,format=raw
 ```
 
-After installation, simply reboot the VM and it should boot from the install
-disk and not the live image. If not, remove the `-drive file=image_uefi.bin`
-parameter to enforce booting from the installation disk. This step is required
-if QEMU/OVMF do not retain NVRAM contents between boots.
+After installation, first power down the VM (`systemctl poweroff`), then run
+QEMU without the `-drive uki.efi` argument to boot from the installation disk.
+
+
+# Known Issues
+
+## Insufficient RAM or misbehaving UEFI
+
+As initially disclaimed, misusing an initrd to contain a whole rootfs is
+experimental. The following errors may be indicative of either insufficient
+RAM (experiment with `qemu-system-x86_64 -m $MEGS_OF_RAM`) or a misbehaving UEFI
+implementation that copies the UKI EFI file only partially:
+
+* `Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)`
+* `Kernel panic - not syncing: No working init found.  Try passing init= option to kernel.`

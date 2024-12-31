@@ -1,0 +1,13 @@
+Package: linux-initramfs-tool-noop
+Version: 0.1
+Architecture: all
+Maintainer: Carsten Andrich
+Conflicts: dracut, initramfs-tools
+Provides: linux-initramfs-tool
+Description: No-op provider of linux-initramfs-tool
+ This no-op package Provides: linux-initramfs-tool, upon which Debian kernel
+ images typically depend. If no provider is installed, installing a kernel
+ image automatically pulls the default initramfs-tools as a dependency.
+ .
+ By providing a no-op linux-initramfs-tool, this package enables installing
+ kernel images without incurring (automatic) initramfs builds.

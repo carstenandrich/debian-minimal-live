@@ -3,16 +3,17 @@ DEBIAN_SUITE=sid
 
 # default target: build disk image
 .PHONY: default
-default: image_uefi.bin
+default: uki.efi
 
 # delete all build artifacts
 .PHONY: clean
 clean:
-	rm -rf bootstrap rootfs image_uefi.bin rootfs-overlay.deb MemTest86
+	rm -rf bootstrap rootfs initrd.zst uki.efi
+	make -C memtest86plus/build64 clean
 
 # dependency: build rootfs-overlay.deb from source files
-rootfs-overlay.deb: rootfs-overlay.deb.d
-	dpkg-deb -b rootfs-overlay.deb.d rootfs-overlay.deb
+linux-initramfs-tool-noop.deb: linux-initramfs-tool-noop.deb.d
+	dpkg-deb -b $@.d $@
 
 # dependency: build memtest86+ x86_64 efi binary
 memtest86plus/build64/memtest.efi: memtest86plus
@@ -35,9 +36,9 @@ else
 endif
 
 # second step: build rootfs from bootstrapped system
-rootfs: bootstrap rootfs-overlay.deb rootfs.sh rootfs_chroot.sh
+rootfs: bootstrap rootfs.sh rootfs_chroot.sh linux-initramfs-tool-noop.deb
 	DEBIAN_SUITE=$(DEBIAN_SUITE) ./rootfs.sh
 
-# third step: generate UEFI disk image from rootfs
-image_uefi.bin: image_uefi.sh rootfs rootfs-overlay.tar.d memtest86plus/build64/memtest.efi
-	./image_uefi.sh
+# third step: build unified kernel image (UKI) from roofs/ and include.d/
+uki.efi: rootfs include.d uki.sh
+	./uki.sh
