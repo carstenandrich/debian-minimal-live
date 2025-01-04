@@ -31,7 +31,7 @@ apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef
 	btrfs-progs cryptsetup-bin dosfstools fdisk \
 	iputils-arping iputils-ping iputils-tracepath netcat-openbsd openssh-client \
 	\
-	iwd firmware-iwlwifi
+	iwd firmware-iwlwifi firmware-realtek
 
 # enable systemd services not enabled by default
 if [ -f /usr/lib/systemd/system/systemd-networkd.service ] ; then

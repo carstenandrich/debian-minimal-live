@@ -27,6 +27,9 @@ GID_USER=$(stat -c %g rootfs/home/user/)
 # get kernel uname from rootfs/vmlinuz symlink
 UNAME=$(readlink rootfs/vmlinuz)
 UNAME=${UNAME#boot/vmlinuz-}
+# suffix .osrel NAME to facilitate distinguishing between UKI and installation
+sed -E 's,^((PRETTY_)?NAME=".+)",\1 Live/Recovery UKI",g' rootfs/etc/os-release >uki-os-release
 # assemble kernel and initrd into unified kernel image (UKI)
 # https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
-ukify build --linux=rootfs/vmlinuz --initrd=initrd.zst --cmdline=rdinit=/lib/systemd/systemd --uname="$UNAME" --os-release=@rootfs/etc/os-release --output=uki.efi
+ukify build --linux=rootfs/vmlinuz --initrd=initrd.zst --cmdline=rdinit=/lib/systemd/systemd --uname="$UNAME" --os-release=@uki-os-release --output=uki.efi
+rm uki-os-release

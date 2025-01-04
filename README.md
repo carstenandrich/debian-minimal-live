@@ -1,6 +1,7 @@
 # Minimal Debian Live System as Unified Kernel Image (UKI)
 
-**DISCLAIMER: If you're looking for a conventional Debian live system, go to [Debian.org](https://www.debian.org/).**
+**If you're looking for a conventional Debian live system, go to [Debian.org](https://www.debian.org/).**
+
 This repository builds a minimal Debian live system packed as a single file, self-contained [Unified Kernel Image (UKI)](https://uapi-group.org/specifications/specs/unified_kernel_image/).
 The UKI contains a very large initrd, which comprises the entire root file system (rootfs) instead of only the components required for early boot.
 This approach is **experimental** and not guaranteed to work with all UEFI implementations (tested with UEFI 2.40 (American Megatrends 5.11)).
@@ -8,11 +9,12 @@ This approach is **experimental** and not guaranteed to work with all UEFI imple
 ## Features
 
   * Minimal live system (<200 MB size in default configuration)
-    * Suitable as a self-contained recovery system on a 512M EFI system partition (ESP)
+    * Suitable as a self-contained recovery system on a 512 MB EFI system partition (ESP)
+    * Includes wireless network configuration tools ([iwd](https://manpages.debian.org/unstable/iwd/iwd.8.en.html)) and firmware ([firmware-iwlwifi](https://packages.debian.org/sid/firmware-iwlwifi), [firmware-realtek](https://packages.debian.org/sid/firmware-realtek))
   * Pre-configured Unified Kernel Image (UKI) compliant to [Boot Loader Specification](https://uapi-group.org/specifications/specs/boot_loader_specification/)
     * No configuration required (i.e., no need to set root device on kernel cmdline, e.g., `root=UUID=DEAD-BEEF`)
-    * Automatic detection with [supported boot loaders](https://wiki.archlinux.org/title/Unified_kernel_image#Booting)
-    * Alternatively boots without boot loader when `EFI/BOOT/BOOTX64.EFI`
+    * Automatic detection of UKI in `$ESP/EFI/Linux/` with [supported boot loaders](https://wiki.archlinux.org/title/Unified_kernel_image#Booting)
+    * UKI boots directly (without boot loader) when stored as `$ESP/EFI/BOOT/BOOTX64.EFI`
   * Supports current Debian stable (Bookworm) and unstable (Sid) on x86_64
   * UEFI boot only (legacy BIOS not supported!)
   * Easily customizable ([single shell script](./rootfs_chroot.sh) assembles live system)
@@ -64,13 +66,6 @@ minimalism (no bloat) and the use of cutting-edge technology.
 Both live and installed systems use systemd for everything (booting, network
 configuration, logging) and traditional alternatives (syslogd, cron, etc.) are
 not installed by default.
-
-The live system relies on a compressed SquashFS read-only root file system
-combined with an OverlayFS for volatile run-time write access.
-The OverlayFS is initialized from a compressed .tar file during early boot (in
-initramfs), enabling retroactively customized replication of a single live image
-for deployment on multiple systems that require different configurations.
-Systemd-boot is used as boot loader, so only UEFI is supported.
 
 The build process is implemented by multiple, compartmentalized shell scripts.
 A [Makefile](./Makefile) is used to orchestrate the build including dependency
@@ -131,7 +126,7 @@ Then boot the UKI EFI file via QEMU:
 
 ```sh
 qemu-system-x86_64 -nodefaults -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd \
-	-m 1536 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci \
+	-m 2048 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci \
 	-kernel uki.efi
 ```
 
@@ -140,15 +135,15 @@ qemu-system-x86_64 -nodefaults -enable-kvm -machine q35 -bios /usr/share/ovmf/OV
 To test the scripted installer, you can create a drive backed by a sparse file:
 
 ```sh
-dd if=/dev/null bs=1G seek=8 of=/tmp/sda.bin
+truncate --size=8G /tmp/sda.bin
 qemu-system-x86_64 -nodefaults -enable-kvm -machine q35 -bios /usr/share/ovmf/OVMF.fd \
 	-m 2048 -vga virtio -nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci \
 	-kernel uki.efi \
-	-drive file=/tmp/sda.bin,if=virtio,aio=io_uring,index=1,media=disk,format=raw
+	-drive file=/tmp/sda.bin,if=virtio,aio=io_uring,index=0,media=disk,format=raw
 ```
 
-After installation, first power down the VM (`systemctl poweroff`), then run
-QEMU without the `-drive uki.efi` argument to boot from the installation disk.
+After the installation, first power down the VM (`systemctl poweroff`), then run
+QEMU without the `-kernel uki.efi` argument to boot from the installation disk.
 
 
 # Known Issues
