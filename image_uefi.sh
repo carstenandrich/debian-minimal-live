@@ -24,11 +24,6 @@ trap "cleanup" EXIT INT
 # delete old artifacts
 rm -f rootfs.squashfs image_uefi.bin
 
-# cleanup rootfs (reduce image size)
-rm -rf --one-file-system rootfs/var/cache/apt/*
-rm -rf --one-file-system rootfs/var/lib/apt/lists/*
-rm -rf --one-file-system rootfs/var/log/*
-
 # create compressed rootfs archive
 mksquashfs rootfs rootfs.squashfs -comp zstd -e boot -e initrd.img -e initrd.img.old -e vmlinuz -e vmlinuz.old
 SQUASHFS_SIZE=$(stat -c %s rootfs.squashfs)

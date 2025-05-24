@@ -1,4 +1,4 @@
-# select Debian suite (supports bookwork and sid)
+# select Debian suite (supports bookwork, trixie, and sid)
 DEBIAN_SUITE=sid
 
 # default target: build disk image
@@ -8,7 +8,8 @@ default: image_uefi.bin
 # delete all build artifacts
 .PHONY: clean
 clean:
-	rm -rf bootstrap rootfs image_uefi.bin rootfs-overlay.deb MemTest86
+	rm -rf bootstrap rootfs image_uefi.bin rootfs-overlay.deb
+	make -C memtest86plus/build64 clean
 
 # dependency: build rootfs-overlay.deb from source files
 rootfs-overlay.deb: rootfs-overlay.deb.d
@@ -24,15 +25,8 @@ memtest86plus/build64/memtest.efi: memtest86plus
 #dpkg --root bootstrap.d --install /usr/share/cdebootstrap/cdebootstrap-helper-rc.d.deb
 bootstrap:
 	rm -rf bootstrap
-	cdebootstrap --flavour=minimal --include=usrmerge,usr-is-merged,whiptail $(DEBIAN_SUITE) bootstrap http://deb.debian.org/debian
+	cdebootstrap --flavour=minimal --include=whiptail $(DEBIAN_SUITE) bootstrap http://deb.debian.org/debian
 	rm -rf bootstrap/run/*
-	# remove usrmerge and its dependencies after /usr has been merged
-ifeq ($(DEBIAN_SUITE),bookworm)
-	dpkg --root=bootstrap --purge usrmerge perl perl-modules-5.36 libfile-find-rule-perl libnumber-compare-perl libperl5.36 libtext-glob-perl
-else
-	# FIXME: will break on perl major version upgrade
-	dpkg --root=bootstrap --purge usrmerge perl perl-modules-5.40 libfile-find-rule-perl libnumber-compare-perl libperl5.40 libtext-glob-perl
-endif
 
 # second step: build rootfs from bootstrapped system
 rootfs: bootstrap rootfs-overlay.deb rootfs.sh rootfs_chroot.sh

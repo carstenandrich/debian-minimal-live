@@ -5,11 +5,37 @@ rm -rf --one-file-system rootfs
 cp -a --reflink=auto bootstrap rootfs
 
 # configure apt sources
-echo "deb http://deb.debian.org/debian $DEBIAN_SUITE main contrib non-free non-free-firmware" >rootfs/etc/apt/sources.list
-if [ $DEBIAN_SUITE != "sid" ] ; then
-	echo "deb http://security.debian.org/debian-security $DEBIAN_SUITE-security main contrib non-free non-free-firmware" >>rootfs/etc/apt/sources.list
-	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-updates main contrib non-free non-free-firmware" >>rootfs/etc/apt/sources.list
-	echo "deb http://deb.debian.org/debian $DEBIAN_SUITE-backports main contrib non-free non-free-firmware" >>rootfs/etc/apt/sources.list
+rm -f rootfs/etc/apt/sources.list
+if [ "$DEBIAN_SUITE" = "sid" ] ; then
+	cat >rootfs/etc/apt/sources.list.d/debian.sources <<-EOF
+		Types: deb
+		URIs: http://deb.debian.org/debian/
+		Suites: sid
+		Components: main contrib non-free non-free-firmware
+		Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+	EOF
+# TODO: remove fallback when deprecating bookworm
+elif [ "$DEBIAN_SUITE" = "bookworm" ] ; then
+	cat >rootfs/etc/apt/sources.list <<-EOF
+		deb http://deb.debian.org/debian ${DEBIAN_SUITE} main contrib non-free non-free-firmware
+		deb http://security.debian.org/debian-security ${DEBIAN_SUITE}-security main contrib non-free non-free-firmware
+		deb http://deb.debian.org/debian ${DEBIAN_SUITE}-updates main contrib non-free non-free-firmware
+		deb http://deb.debian.org/debian ${DEBIAN_SUITE}-backports main contrib non-free non-free-firmware
+	EOF
+else
+	cat >rootfs/etc/apt/sources.list.d/debian.sources <<-EOF
+		Types: deb
+		URIs: http://deb.debian.org/debian/
+		Suites: ${DEBIAN_SUITE} ${DEBIAN_SUITE}-updates ${DEBIAN_SUITE}-backports
+		Components: main contrib non-free non-free-firmware
+		Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+		Types: deb
+		URIs: http://security.debian.org/debian-security/
+		Suites: ${DEBIAN_SUITE}-security
+		Components: main contrib non-free non-free-firmware
+		Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+	EOF
 fi
 
 # configure hostname
