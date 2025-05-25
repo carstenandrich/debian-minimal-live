@@ -30,7 +30,7 @@ apt-get --assume-yes --no-install-recommends -o Dpkg::Options::="--force-confdef
 	\
 	bash-completion bubblewrap busybox cdebootstrap console-setup keyboard-configuration usb-modeswitch \
 	htop less man-db manpages \
-	btrfs-progs cryptsetup-bin dosfstools fdisk ntfs-3g \
+	btrfs-progs cryptsetup-bin dosfstools efibootmgr fdisk ntfs-3g \
 	iputils-ping iputils-tracepath netcat-openbsd openssh-client openssh-server
 
 # enable systemd services not enabled by default
