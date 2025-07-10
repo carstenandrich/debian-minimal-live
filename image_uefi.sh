@@ -51,7 +51,11 @@ KERNEL_VERSION=${KERNEL#boot/vmlinuz-}
 
 # create systemd-boot configuration
 mkdir -p image_uefi.mnt/EFI/BOOT/ image_uefi.mnt/loader/entries/ image_uefi.mnt/EFI/memtest86+/
-cp rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi image_uefi.mnt/EFI/BOOT/BOOTX64.EFI
+if [ -e rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed ] ; then
+	cp rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed image_uefi.mnt/EFI/BOOT/BOOTX64.EFI
+else
+	cp rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi image_uefi.mnt/EFI/BOOT/BOOTX64.EFI
+fi
 cp memtest86plus/build64/memtest.efi image_uefi.mnt/EFI/memtest86+/memtest86+.efi
 cat >image_uefi.mnt/loader/loader.conf <<-EOF
 	default  debian.conf
