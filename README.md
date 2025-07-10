@@ -7,7 +7,7 @@ and/or easily customizable live system image builder.
 ## Features
 
   * Builds minimalistic read-only live image (<300 MB image size without GUI)
-  * Supports current Debian stable (Bookworm) and unstable (Sid) on x86_64
+  * Supports current Debian stable (Bookworm), testing (Trixie), and unstable (Sid) on x86_64
   * UEFI boot only (legacy BIOS not supported)
   * Easily customizable (single shell script assembles live system)
   * Boot medium unpluggable after boot (image copied into RAM)
@@ -151,7 +151,7 @@ Works without root permissions if the image is writable:
 
 ```sh
 sudo chmod 666 image_uefi.bin
-qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd\
+qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd \
 	-m 1G -machine q35,accel=kvm -cpu host -smp 2 \
 	-vga virtio -device qemu-xhci -device usb-tablet -device usb-kbd \
 	-nic user,hostfwd=tcp:127.0.0.1:2222-:22,model=virtio-net-pci \
