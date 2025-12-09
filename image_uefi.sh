@@ -56,7 +56,7 @@ if [ -e rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed ] ; then
 else
 	cp rootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi image_uefi.mnt/EFI/BOOT/BOOTX64.EFI
 fi
-cp memtest86plus/build64/memtest.efi image_uefi.mnt/EFI/memtest86+/memtest86+.efi
+cp memtest86plus/build/x86_64/mt86plus image_uefi.mnt/EFI/memtest86+/memtest86+.efi
 cat >image_uefi.mnt/loader/loader.conf <<-EOF
 	default  debian.conf
 	timeout  3

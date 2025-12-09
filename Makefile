@@ -9,15 +9,15 @@ default: image_uefi.bin
 .PHONY: clean
 clean:
 	rm -rf bootstrap rootfs image_uefi.bin rootfs-overlay.deb
-	make -C memtest86plus/build64 clean
+	make -C memtest86plus/build/x86_64 clean
 
 # dependency: build rootfs-overlay.deb from source files
 rootfs-overlay.deb: rootfs-overlay.deb.d
 	dpkg-deb -b rootfs-overlay.deb.d rootfs-overlay.deb
 
 # dependency: build memtest86+ x86_64 efi binary
-memtest86plus/build64/memtest.efi: memtest86plus
-	make -C memtest86plus/build64 memtest.efi
+memtest86plus/build/x86_64/mt86plus: memtest86plus
+	make -C memtest86plus/build/x86_64 mt86plus
 
 # first step: bootstrap minimal system
 # alternative to cdebootstrap if it breaks again: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=928908
@@ -33,5 +33,5 @@ rootfs: bootstrap rootfs-overlay.deb rootfs.sh rootfs_chroot.sh
 	DEBIAN_SUITE=$(DEBIAN_SUITE) ./rootfs.sh
 
 # third step: generate UEFI disk image from rootfs
-image_uefi.bin: image_uefi.sh rootfs rootfs-overlay.tar.d memtest86plus/build64/memtest.efi
+image_uefi.bin: image_uefi.sh rootfs rootfs-overlay.tar.d memtest86plus/build/x86_64/mt86plus
 	./image_uefi.sh
