@@ -14,14 +14,6 @@ if [ "$DEBIAN_SUITE" = "sid" ] ; then
 		Components: main contrib non-free non-free-firmware
 		Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
 	EOF
-# TODO: remove fallback when deprecating bookworm
-elif [ "$DEBIAN_SUITE" = "bookworm" ] ; then
-	cat >rootfs/etc/apt/sources.list <<-EOF
-		deb http://deb.debian.org/debian ${DEBIAN_SUITE} main contrib non-free non-free-firmware
-		deb http://security.debian.org/debian-security ${DEBIAN_SUITE}-security main contrib non-free non-free-firmware
-		deb http://deb.debian.org/debian ${DEBIAN_SUITE}-updates main contrib non-free non-free-firmware
-		deb http://deb.debian.org/debian ${DEBIAN_SUITE}-backports main contrib non-free non-free-firmware
-	EOF
 else
 	cat >rootfs/etc/apt/sources.list.d/debian.sources <<-EOF
 		Types: deb
@@ -57,8 +49,7 @@ dpkg --root=rootfs --install rootfs-overlay.deb
 #   * partially isolates host system from build process (via minimally
 #     populated /dev and /proc mounts)
 #   * cleans up reliably (unmount everything and kill any remaining processes)
-# TODO: use bwrap --clearenv when bubblewrap 0.5 is widely available
-env --ignore-environment bwrap \
+bwrap --clearenv \
 	--setenv DEBIAN_SUITE "$DEBIAN_SUITE" \
 	--setenv HOME "$HOME" \
 	--setenv PATH "/usr/sbin:/usr/bin:/sbin:/bin" \
@@ -70,7 +61,7 @@ env --ignore-environment bwrap \
 	--proc /proc \
 	--tmpfs /run \
 	--ro-bind /sys /sys \
-	--tmpfs /tmp \
+	--perms 1777 --tmpfs /tmp \
 	--file 3 /tmp/rootfs_chroot.sh \
 	--bind /var/cache/apt/archives /var/cache/apt/archives \
 	\

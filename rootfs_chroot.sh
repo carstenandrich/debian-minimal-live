@@ -1,9 +1,5 @@
 #!/bin/sh -eux
 
-# /tmp is tmpfs created by bwrap, but bwrap uses 0755 mode
-# TODO: use bwrap --perms 1777 --tmpfs /tmp once bwrap 0.5 is widely available
-chmod 1777 /tmp
-
 # installing systemd-resolved replaces /etc/resolv.conf with a symlink to
 # /run/system/resolved/stub-resolv.conf. with service invocation inhibited in
 # the chroot, systemd-resolved does not run and these files are missing,

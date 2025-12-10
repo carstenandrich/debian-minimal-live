@@ -7,7 +7,7 @@ and/or easily customizable live system image builder.
 ## Features
 
   * Builds minimalistic read-only live image (<300 MB image size without GUI)
-  * Supports current Debian stable (Bookworm), testing (Trixie), and unstable (Sid) on x86_64
+  * Supports current Debian stable (Trixie), testing (Forky), and unstable (Sid) on x86_64
   * UEFI boot only (legacy BIOS not supported)
   * Easily customizable (single shell script assembles live system)
   * Boot medium unpluggable after boot (image copied into RAM)
